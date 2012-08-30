@@ -1,0 +1,16 @@
+*.class
+*.classpath
+*.apk
+*.ap_
+*.dex
+*.project
+*.ini
+*.svg
+proguard.cfg
+project.properties
+lint.xml
+apikeys.xml
+bin/
+gen/
+libs/
+.dropbox
