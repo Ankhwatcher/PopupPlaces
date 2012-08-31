@@ -7,10 +7,15 @@
         android:minSdkVersion="14"
         android:targetSdkVersion="15" />
 
+    
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <uses-library android:name="com.google.android.maps" />
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main" >
