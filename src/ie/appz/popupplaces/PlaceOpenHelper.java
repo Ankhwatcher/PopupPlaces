@@ -1,4 +1,4 @@
-package ie.appz.popup.places;
+package ie.appz.popupplaces;
 
 import android.content.Context;
 import android.database.Cursor;
