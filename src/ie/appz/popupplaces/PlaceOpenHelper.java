@@ -47,7 +47,7 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 		db.execSQL("insert into " + PLACE_TABLE_NAME + "(" + LATITUDE + ", "
 				+ LONGITUDE + ", " + POPUP_TEXT + ") " + "values("
 				+ geoPoint.getLatitudeE6() + ", " + geoPoint.getLongitudeE6()
-				+ ", " + popupText + ");");
+				+ ", '" + popupText + "');");
 	}
 
 	public Cursor getPlaces() {
