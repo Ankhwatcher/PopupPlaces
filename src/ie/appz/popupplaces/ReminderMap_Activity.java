@@ -26,6 +26,7 @@ public class ReminderMap_Activity extends MapActivity {
 
 	private MapView mapView;
 	private PlaceOpenHelper placeOpenHelper;
+	private MapOverlay mapOverlay;
 
 	public class MapOverlay extends com.google.android.maps.Overlay {
 		@Override
@@ -76,13 +77,11 @@ public class ReminderMap_Activity extends MapActivity {
 						String popupNote = inputBox.getText().toString();
 						if (popupNote.length() > 0) {
 							placeOpenHelper.addPlace(tappedPoint, popupNote);
-							Context context = getApplicationContext();
-							CharSequence text = tappedPoint.toString() + ", "
-									+ popupNote;
-							int duration = Toast.LENGTH_SHORT;
 
-							Toast toast = Toast.makeText(context, text,
-									duration);
+							Toast toast = Toast.makeText(
+									getApplicationContext(),
+									tappedPoint.toString() + ", " + popupNote,
+									Toast.LENGTH_LONG);
 							toast.show();
 							drawPlaces();
 						}
@@ -126,7 +125,7 @@ public class ReminderMap_Activity extends MapActivity {
 		mapView.getController().animateTo(oldGeo);
 		mapView.getController().setZoom(14);
 
-		MapOverlay mapOverlay = new MapOverlay();
+		mapOverlay = new MapOverlay();
 		List<Overlay> listOfOverlays = mapView.getOverlays();
 		listOfOverlays.clear();
 		listOfOverlays.add(mapOverlay);
@@ -168,8 +167,15 @@ public class ReminderMap_Activity extends MapActivity {
 						"Popup Note:", placeCursor.getString(2)));
 			} while (placeCursor.moveToNext());
 			placeCursor.close();
+			placeOpenHelper.close();
+
+			mapOverlay = new MapOverlay();
+			mapView.getOverlays().clear();
+
+			mapView.getOverlays().add(mapOverlay);
 			mapView.getOverlays().add(placeOverlay);
 			mapView.invalidate();
 		}
 	}
+
 }
