@@ -2,9 +2,12 @@ package ie.appz.popupplaces;
 
 import java.util.ArrayList;
 
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
@@ -12,6 +15,7 @@ import com.google.android.maps.OverlayItem;
 
 public class PlacesItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
+	private Runnable runDraw;
 	Context clientContext;
 
 	public PlacesItemizedOverlay(Drawable routeIcon) {
@@ -19,8 +23,10 @@ public class PlacesItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 		populate();
 	}
 
-	public void addOverlay(OverlayItem overlay) {
+	public void addOverlay(OverlayItem overlay, Runnable mUpdate) {
+
 		mOverlays.add(overlay);
+		runDraw = mUpdate;
 		populate();
 	}
 
@@ -42,13 +48,46 @@ public class PlacesItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 
 	@Override
 	protected boolean onTap(int index) {
-		OverlayItem item = mOverlays.get(index);
+		final OverlayItem item = mOverlays.get(index);
 
-		AlertDialog.Builder dialog = new AlertDialog.Builder(this.clientContext);
+		final Dialog dialog = new Dialog(this.clientContext);
+		dialog.setContentView(R.layout.oldplacedialog_layout);
 		dialog.setTitle(item.getTitle());
-		dialog.setMessage(item.getSnippet());
-		dialog.show();
+		TextView textView = (TextView) dialog.findViewById(R.id.popupText);
+		textView.setText(item.getSnippet());
+		dialog.setCancelable(true);
 
+		Button okayButton = (Button) dialog.findViewById(R.id.okayButton);
+
+		okayButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				dialog.dismiss();
+			}
+		});
+
+		/* Click on the Delete Button */
+		Button deleteButton = (Button) dialog.findViewById(R.id.deleteButton);
+		deleteButton.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				PlaceOpenHelper placeHelper = new PlaceOpenHelper(
+						PlacesItemizedOverlay.this.clientContext);
+				placeHelper.deletePlace(item.getPoint(), item.getSnippet());
+				placeHelper.close();
+				/*
+				 * Notify the asynchronous thread that drawPlaces() needs to be
+				 * run
+				 */
+				synchronized (runDraw) {
+					runDraw.notify();
+				}
+				dialog.dismiss();
+
+			}
+		});
+		dialog.show();
 		return true;
 	}
 

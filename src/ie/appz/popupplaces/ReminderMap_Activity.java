@@ -27,6 +27,7 @@ public class ReminderMap_Activity extends MapActivity {
 	private MapView mapView;
 	private PlaceOpenHelper placeOpenHelper;
 	private MapOverlay mapOverlay;
+	private boolean nowRunning = false;
 
 	public class MapOverlay extends com.google.android.maps.Overlay {
 		@Override
@@ -138,6 +139,8 @@ public class ReminderMap_Activity extends MapActivity {
 	public void onResume() {
 		super.onResume();
 		drawPlaces();
+		nowRunning = true;
+		new Thread(mUpdate).start();
 	}
 
 	@Override
@@ -152,7 +155,7 @@ public class ReminderMap_Activity extends MapActivity {
 		return false;
 	}
 
-	void drawPlaces() {
+	public void drawPlaces() {
 		PlaceOpenHelper placeOpenHelper = new PlaceOpenHelper(this);
 		Cursor placeCursor = placeOpenHelper.getPlaces();
 		Drawable drawable = getResources().getDrawable(R.drawable.ic_launcher);
@@ -164,7 +167,7 @@ public class ReminderMap_Activity extends MapActivity {
 			do {
 				placeOverlay.addOverlay(new OverlayItem(new GeoPoint(
 						placeCursor.getInt(0), placeCursor.getInt(1)),
-						"Popup Note:", placeCursor.getString(2)));
+						"Popup Note:", placeCursor.getString(2)), mUpdate);
 			} while (placeCursor.moveToNext());
 			placeCursor.close();
 			placeOpenHelper.close();
@@ -178,4 +181,43 @@ public class ReminderMap_Activity extends MapActivity {
 		}
 	}
 
+	/*
+	 * This runnable is used to create a thread that allows
+	 * PlacesItemizedOverlay to call the drawPlaces() function after is has
+	 * removed a Place from the database
+	 */
+	public Runnable mUpdate = new Runnable() {
+		public void run() {
+			while (nowRunning) {
+				synchronized (this) {
+					try {
+						wait();
+					} catch (InterruptedException e) {
+
+						e.printStackTrace();
+					}
+				}
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						drawPlaces();
+					}
+				});
+			}
+		}
+	};
+
+	/*
+	 * This code tells the Thread that it should break it's loop and stop when
+	 * the Activity Pauses, I'm not sure if this code is necessary, because
+	 * Android appears to clean up this thread itself.
+	 */
+	@Override
+	protected void onPause() {
+		super.onPause();
+		nowRunning = false;
+		synchronized (mUpdate) {
+			mUpdate.notify();
+		}
+	}
 }

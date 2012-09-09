@@ -50,6 +50,18 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 				+ ", '" + popupText + "');");
 	}
 
+	public void deletePlace(GeoPoint geoPoint, String popupText) {
+		SQLiteDatabase db = getWritableDatabase();
+
+		Log.i(PlaceOpenHelper.class.getName(), "Deleting Popup Place at "
+				+ geoPoint.toString());
+		db.delete(PLACE_TABLE_NAME, LATITUDE + " = " + geoPoint.getLatitudeE6()
+				+ " AND " + LONGITUDE + " = " + geoPoint.getLongitudeE6()
+				+ " AND " + POPUP_TEXT + " = '" + popupText + "'", null);
+		db.close();
+
+	}
+
 	public Cursor getPlaces() {
 		SQLiteDatabase db = getReadableDatabase();
 
