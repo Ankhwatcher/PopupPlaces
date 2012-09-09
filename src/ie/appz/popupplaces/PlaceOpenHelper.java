@@ -48,6 +48,7 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 				+ LONGITUDE + ", " + POPUP_TEXT + ") " + "values("
 				+ geoPoint.getLatitudeE6() + ", " + geoPoint.getLongitudeE6()
 				+ ", '" + popupText + "');");
+		db.close();
 	}
 
 	public void deletePlace(GeoPoint geoPoint, String popupText) {
@@ -58,6 +59,7 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 		db.delete(PLACE_TABLE_NAME, LATITUDE + " = " + geoPoint.getLatitudeE6()
 				+ " AND " + LONGITUDE + " = " + geoPoint.getLongitudeE6()
 				+ " AND " + POPUP_TEXT + " = '" + popupText + "'", null);
+		
 		db.close();
 
 	}

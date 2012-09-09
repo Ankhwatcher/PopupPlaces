@@ -162,23 +162,25 @@ public class ReminderMap_Activity extends MapActivity {
 
 		PlacesItemizedOverlay placeOverlay = new PlacesItemizedOverlay(
 				drawable, this);
-
-		if (placeCursor.moveToFirst()) {
-			do {
-				placeOverlay.addOverlay(new OverlayItem(new GeoPoint(
-						placeCursor.getInt(0), placeCursor.getInt(1)),
-						"Popup Note:", placeCursor.getString(2)), mUpdate);
-			} while (placeCursor.moveToNext());
-			placeCursor.close();
-			placeOpenHelper.close();
-
-			mapOverlay = new MapOverlay();
-			mapView.getOverlays().clear();
-
-			mapView.getOverlays().add(mapOverlay);
-			mapView.getOverlays().add(placeOverlay);
-			mapView.invalidate();
+		int rows = placeCursor.getCount();
+		if (rows >= 1) {
+			if (placeCursor.moveToFirst()) {
+				do {
+					placeOverlay.addOverlay(new OverlayItem(new GeoPoint(
+							placeCursor.getInt(0), placeCursor.getInt(1)),
+							"Popup Note:", placeCursor.getString(2)), mUpdate);
+				} while (placeCursor.moveToNext());
+			}
 		}
+		placeCursor.close();
+		placeOpenHelper.close();
+
+		mapOverlay = new MapOverlay();
+		mapView.getOverlays().clear();
+
+		mapView.getOverlays().add(mapOverlay);
+		mapView.getOverlays().add(placeOverlay);
+		mapView.invalidate();
 	}
 
 	/*
