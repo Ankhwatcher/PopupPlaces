@@ -29,6 +29,7 @@ public class ReminderMap_Activity extends MapActivity {
 	private MapOverlay mapOverlay;
 	private boolean nowRunning = false;
 
+
 	public class MapOverlay extends com.google.android.maps.Overlay {
 		@Override
 		public boolean draw(Canvas canvas, MapView mapView, boolean shadow,
@@ -154,6 +155,8 @@ public class ReminderMap_Activity extends MapActivity {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	
 
 	public void drawPlaces() {
 		PlaceOpenHelper placeOpenHelper = new PlaceOpenHelper(this);
