@@ -275,7 +275,7 @@ public class PopupTrigger extends Service {
 				nCompatBuilder.setContentText(popupText);
 				nCompatBuilder.setContentIntent(contentIntent);
 
-				nCompatBuilder.setSmallIcon(R.drawable.ic_notification);
+				nCompatBuilder.setSmallIcon(R.drawable.ic_launcher);
 
 				Notification notification = nCompatBuilder.build();
 
