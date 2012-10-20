@@ -4,11 +4,13 @@ import java.util.List;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,16 +26,19 @@ import com.google.android.maps.OverlayItem;
 
 public class ReminderMap_Activity extends MapActivity {
 
+	public static final String NewLongitude = "new_longitude";
+
+	public static final String NewLatitude = "new_latitude";
+
 	private MapView mapView;
-	private PlaceOpenHelper placeOpenHelper;
+
 	private MapOverlay mapOverlay;
 	private boolean nowRunning = false;
-
+	public static String ItemChanged = "item_changed";
 
 	public class MapOverlay extends com.google.android.maps.Overlay {
 		@Override
-		public boolean draw(Canvas canvas, MapView mapView, boolean shadow,
-				long when) {
+		public boolean draw(Canvas canvas, MapView mapView, boolean shadow, long when) {
 			super.draw(canvas, mapView, shadow);
 			return true;
 		}
@@ -49,8 +54,7 @@ public class ReminderMap_Activity extends MapActivity {
 			if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
 				tap = true;
 			}
-			if (motionEvent.getAction() == MotionEvent.ACTION_MOVE
-					&& motionEvent.getPointerCount() > 1) {
+			if (motionEvent.getAction() == MotionEvent.ACTION_MOVE && motionEvent.getPointerCount() > 1) {
 				tap = false;
 			}
 			return super.onTouchEvent(motionEvent, mv);
@@ -59,18 +63,17 @@ public class ReminderMap_Activity extends MapActivity {
 
 		@Override
 		public boolean onTap(final GeoPoint tappedPoint, MapView mapView) {
+
 			if (tap == true) {
 				final Dialog dialog = new Dialog(ReminderMap_Activity.this);
 				dialog.setContentView(R.layout.newplacedialog_layout);
 				dialog.setTitle(R.string.newplacedialog_text);
 				dialog.setCancelable(true);
-
-				final EditText inputBox = (EditText) dialog
-						.findViewById(R.id.editText1);
+				final PlaceOpenHelper placeOpenHelper = new PlaceOpenHelper(ReminderMap_Activity.this);
+				final EditText inputBox = (EditText) dialog.findViewById(R.id.editText1);
 
 				/* Click on the Save Button */
-				Button saveButton = (Button) dialog
-						.findViewById(R.id.saveButton);
+				Button saveButton = (Button) dialog.findViewById(R.id.saveButton);
 				saveButton.setOnClickListener(new View.OnClickListener() {
 
 					@Override
@@ -78,13 +81,18 @@ public class ReminderMap_Activity extends MapActivity {
 
 						String popupNote = inputBox.getText().toString();
 						if (popupNote.length() > 0) {
+
 							placeOpenHelper.addPlace(tappedPoint, popupNote);
 
-							Toast toast = Toast.makeText(
-									getApplicationContext(),
-									tappedPoint.toString() + ", " + popupNote,
-									Toast.LENGTH_LONG);
+							Toast toast = Toast.makeText(getApplicationContext(), tappedPoint.toString() + ", \"" + popupNote + "\" added.", Toast.LENGTH_LONG);
 							toast.show();
+							Intent intent = new Intent(ReminderMap_Activity.this, PopupTrigger.class);
+							Bundle extrasBundle = new Bundle();
+							extrasBundle.putBoolean(ReminderMap_Activity.ItemChanged, true);
+							extrasBundle.putInt(PopupTrigger.NotificationLatitude, tappedPoint.getLatitudeE6());
+							extrasBundle.putInt(PopupTrigger.NotificationLongitude, tappedPoint.getLongitudeE6());
+							intent.putExtras(extrasBundle);
+							startService(intent);
 							drawPlaces();
 						}
 						dialog.dismiss();
@@ -93,8 +101,7 @@ public class ReminderMap_Activity extends MapActivity {
 				});
 
 				/* Click on the Cancel Button */
-				Button cancelButton = (Button) dialog
-						.findViewById(R.id.cancelButton);
+				Button cancelButton = (Button) dialog.findViewById(R.id.cancelButton);
 				cancelButton.setOnClickListener(new View.OnClickListener() {
 
 					@Override
@@ -105,10 +112,14 @@ public class ReminderMap_Activity extends MapActivity {
 					}
 				});
 				dialog.show();
+				placeOpenHelper.close();
 				return true;
-			} else
+			} else {
 				return false;
+			}
+
 		}
+
 	}
 
 	@Override
@@ -118,22 +129,24 @@ public class ReminderMap_Activity extends MapActivity {
 		mapView = (MapView) findViewById(R.id.mapview);
 		mapView.setBuiltInZoomControls(true);
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		GeoPoint oldGeo = new GeoPoint((int) (locationManager
-				.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-				.getLatitude() * 1E6), (int) (locationManager
-				.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-				.getLongitude() * 1E6));
-
-		mapView.getController().animateTo(oldGeo);
-		mapView.getController().setZoom(14);
-
+		GeoPoint oldGeo = new GeoPoint((int) (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude() * 1E6),
+				(int) (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude() * 1E6));
+		if (oldGeo != null) {
+			mapView.getController().animateTo(oldGeo);
+			mapView.getController().setZoom(14);
+		}
 		mapOverlay = new MapOverlay();
 		List<Overlay> listOfOverlays = mapView.getOverlays();
 		listOfOverlays.clear();
 		listOfOverlays.add(mapOverlay);
 
 		mapView.invalidate();
-		placeOpenHelper = new PlaceOpenHelper(this);
+		PlaceOpenHelper placeOpenHelper = new PlaceOpenHelper(this);
+
+		if (placeOpenHelper.numberOfPlaces() >= 1) {
+			startService(new Intent(ReminderMap_Activity.this, PopupTrigger.class));
+		}
+
 	}
 
 	@Override
@@ -142,6 +155,20 @@ public class ReminderMap_Activity extends MapActivity {
 		drawPlaces();
 		nowRunning = true;
 		new Thread(mUpdate).start();
+	}
+
+	@Override
+	public void onNewIntent(Intent intent) {
+		Log.i(this.getClass().toString(), "onNewIntent hit");
+		Bundle extras = intent.getExtras();
+		if (extras != null && extras.containsKey(PopupTrigger.NotificationLongitude) && extras.containsKey(PopupTrigger.NotificationLatitude)) {
+
+			GeoPoint notificationPoint = new GeoPoint(extras.getInt(PopupTrigger.NotificationLatitude), extras.getInt(PopupTrigger.NotificationLongitude));
+			mapView.getController().animateTo(notificationPoint);
+			mapView.getController().setZoom(17);
+			mapView.getOverlays().get(mapView.getOverlays().size() - 1).onTap(notificationPoint, mapView);
+
+		}
 	}
 
 	@Override
@@ -156,22 +183,19 @@ public class ReminderMap_Activity extends MapActivity {
 		return false;
 	}
 
-	
-
 	public void drawPlaces() {
 		PlaceOpenHelper placeOpenHelper = new PlaceOpenHelper(this);
 		Cursor placeCursor = placeOpenHelper.getPlaces();
 		Drawable drawable = getResources().getDrawable(R.drawable.ic_launcher);
 
-		PlacesItemizedOverlay placeOverlay = new PlacesItemizedOverlay(
-				drawable, this);
+		PlacesItemizedOverlay placeOverlay = new PlacesItemizedOverlay(drawable, this);
 		int rows = placeCursor.getCount();
 		if (rows >= 1) {
+
 			if (placeCursor.moveToFirst()) {
 				do {
-					placeOverlay.addOverlay(new OverlayItem(new GeoPoint(
-							placeCursor.getInt(0), placeCursor.getInt(1)),
-							"Popup Note:", placeCursor.getString(2)), mUpdate);
+					placeOverlay.addOverlay(
+							new OverlayItem(new GeoPoint(placeCursor.getInt(0), placeCursor.getInt(1)), "Popup Note:", placeCursor.getString(2)), mUpdate);
 				} while (placeCursor.moveToNext());
 			}
 		}

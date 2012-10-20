@@ -3,14 +3,13 @@ package ie.appz.popupplaces;
 import java.util.ArrayList;
 
 import android.app.Dialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.support.v4.app.NotificationCompat;
+import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -22,8 +21,6 @@ public class PlacesItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
 	private Runnable runDraw;
 	Context clientContext;
-	private static final int POPUP_PLACE_REACHED = 1;
-	private static NotificationManager notificationManager;
 
 	public PlacesItemizedOverlay(Drawable routeIcon) {
 		super(boundCenter(routeIcon));
@@ -63,7 +60,10 @@ public class PlacesItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 		TextView textView = (TextView) dialog.findViewById(R.id.popupText);
 		textView.setText(item.getSnippet());
 		dialog.setCancelable(true);
-		Notification(item.getSnippet());
+		WindowManager.LayoutParams WMLP = dialog.getWindow().getAttributes();
+		dialog.getWindow().setAttributes(WMLP);
+		WMLP.gravity = Gravity.BOTTOM;
+		WMLP.verticalMargin = 0.60f;
 
 		Button okayButton = (Button) dialog.findViewById(R.id.okayButton);
 
@@ -80,14 +80,25 @@ public class PlacesItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 
 			@Override
 			public void onClick(View arg0) {
-				PlaceOpenHelper placeHelper = new PlaceOpenHelper(
-						PlacesItemizedOverlay.this.clientContext);
+				PlaceOpenHelper placeHelper = new PlaceOpenHelper(PlacesItemizedOverlay.this.clientContext);
 				placeHelper.deletePlace(item.getPoint(), item.getSnippet());
 				placeHelper.close();
+				/*
+				 * Tell PopupTrigger that this item has been removed from the
+				 * Database.
+				 */
+				Intent intent = new Intent(clientContext, PopupTrigger.class);
+				Bundle extrasBundle = new Bundle();
+				extrasBundle.putBoolean(ReminderMap_Activity.ItemChanged, false);
+				extrasBundle.putInt(PopupTrigger.NotificationLatitude, item.getPoint().getLatitudeE6());
+				extrasBundle.putInt(PopupTrigger.NotificationLongitude, item.getPoint().getLongitudeE6());
+				intent.putExtras(extrasBundle);
+				clientContext.startService(intent);
 				/*
 				 * Notify the asynchronous thread that drawPlaces() needs to be
 				 * run
 				 */
+
 				synchronized (runDraw) {
 					runDraw.notify();
 				}
@@ -99,34 +110,10 @@ public class PlacesItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 		return true;
 	}
 
-	public void draw(android.graphics.Canvas canvas, MapView mapView,
-			boolean shadow) {
+	public void draw(android.graphics.Canvas canvas, MapView mapView, boolean shadow) {
 
 		super.draw(canvas, mapView, false);
 
 	}
 
-	private void Notification(CharSequence contentText) {
-		Intent notificationIntent = new Intent(this.clientContext,
-				ReminderMap_Activity.class);
-		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		PendingIntent contentIntent = PendingIntent.getActivity(
-				this.clientContext, 0, notificationIntent,
-				PendingIntent.FLAG_UPDATE_CURRENT);
-
-		NotificationCompat.Builder nCompatBuilder = new NotificationCompat.Builder(
-				this.clientContext);
-		nCompatBuilder.setAutoCancel(true);
-		nCompatBuilder.setOngoing(false);
-		// nCompatBuilder.setContentTitle(this.clientContext.getString(R.string.app_name));
-		nCompatBuilder.setContentText(contentText);
-		nCompatBuilder.setContentIntent(contentIntent);
-
-		nCompatBuilder.setSmallIcon(R.drawable.ic_launcher);
-
-		Notification notification = nCompatBuilder.build();
-
-		notificationManager = (NotificationManager) this.clientContext.getSystemService(this.clientContext.NOTIFICATION_SERVICE);
-		notificationManager.notify(POPUP_PLACE_REACHED, notification);
-	}
 }
