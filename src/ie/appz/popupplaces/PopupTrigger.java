@@ -30,7 +30,8 @@ public class PopupTrigger extends Service {
 		 */
 	PlaceOpenHelper placeOpenHelper;
 	Location lastLocation;
-	public static float oldAccuracy = 12;
+	// public static float oldAccuracy = 12;
+	public float oldShortestDistance = 10;
 	LocationManager mLocationManager;
 	LocationListener networkListener;
 	LocationListener gpsListener;
@@ -50,28 +51,8 @@ public class PopupTrigger extends Service {
 						"New Network Location: " + location.getLatitude() + "," + location.getLongitude() + " - " + location.getAccuracy());
 				if (location.getAccuracy() < 40) {
 					if (lastLocation == null || (location.getTime() - lastLocation.getTime()) > 40000) {
-
-						float shortestDistance = updateMap(location);
-						if (shortestDistance < 100) {
-							if (placeReached(location.getAccuracy())) {
-								popupNearest();
-							}
-							mLocationManager.removeUpdates(gpsListener);
-							mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, shortestDistance / 2, gpsListener);
-						} else if (shortestDistance < 200) {
-							mLocationManager.removeUpdates(networkListener);
-							mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, shortestDistance / 2, networkListener);
-							mLocationManager.removeUpdates(gpsListener);
-							mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, shortestDistance / 2, gpsListener);
-						} else {
-							mLocationManager.removeUpdates(networkListener);
-							mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, shortestDistance / 2, networkListener);
-							mLocationManager.removeUpdates(gpsListener);
-						}
-						Log.d(this.getClass().toString(), "Changing Minimum Distance on Location Updates to " + (shortestDistance / 2) + "m");
-						lastLocation.set(location);
+						processLocation(location);
 					}
-
 				}
 			}
 
@@ -91,27 +72,7 @@ public class PopupTrigger extends Service {
 				Log.i(this.getClass().toString(),
 						"New GPS Location: " + location.getLatitude() + "," + location.getLongitude() + " - " + location.getAccuracy());
 				if (location.getAccuracy() < 40) {
-					float shortestDistance = updateMap(location);
-					if (shortestDistance < 100) {
-						if (placeReached(location.getAccuracy())) {
-							popupNearest();
-						}
-						mLocationManager.removeUpdates(gpsListener);
-						mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, shortestDistance / 2, gpsListener);
-					} else if (shortestDistance < 200) {
-						mLocationManager.removeUpdates(networkListener);
-						mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, shortestDistance / 2, networkListener);
-						mLocationManager.removeUpdates(gpsListener);
-						mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, shortestDistance / 2, gpsListener);
-
-					} else {
-						mLocationManager.removeUpdates(networkListener);
-						mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, shortestDistance / 2, networkListener);
-						mLocationManager.removeUpdates(gpsListener);
-					}
-					Log.d(this.getClass().toString(), "Changing Minimum Distance on Location Updates to " + (shortestDistance / 2) + "m");
-
-					lastLocation.set(location);
+					processLocation(location);
 				}
 			}
 
@@ -126,6 +87,57 @@ public class PopupTrigger extends Service {
 				Log.w(this.getClass().toString(), provider + " disabled.");
 			}
 		};
+
+	}
+
+	/*
+	 * The proccessLocation() function is where all of the battery usage
+	 * optimization is. Decisions are based on the distance to the closest Popup
+	 * Place, this value is called shortestDistance. shortestDistance falls into
+	 * one of three categories: less than 100 meters, less than 200 meters and
+	 * more than 200 meters. If the distance is less than 100m, then a check is
+	 * performed to see if the place has been reached, if not then location
+	 * updates are requested from the GPS And Network Providers. If the distance
+	 * is less than 200m, then location updates are requested from the GPS and
+	 * Network providers. If the distance is greater than 200m, then the
+	 * fidelity of the GPS provider is not required and only the Network
+	 * provider is utilized. shortestDiff is the difference between the current
+	 * shortestDistance and the previous shortestDistance (oldShortestDistance)
+	 * it is used to make sure that multiple update requests are not being made
+	 * while the user is stationary.
+	 */
+
+	public void processLocation(Location location) {
+		float shortestDistance = updateMap(location);
+		float shortestDiff = oldShortestDistance - shortestDistance;
+		shortestDiff = (shortestDiff < 0 ? -shortestDiff : shortestDiff);
+		if (shortestDistance < 100) {
+			if (placeReached(location.getAccuracy())) {
+				popupNearest();
+			} else if (shortestDiff > oldShortestDistance / 4) {
+				Log.d(this.getClass().toString(), "Adjusting Network Provider to notify at " + shortestDistance / 2 + "m");
+				mLocationManager.removeUpdates(networkListener);
+				mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, shortestDistance / 2, networkListener);
+				Log.d(this.getClass().toString(), "Adjusting GPS Provider to notify at " + shortestDistance / 2 + "m");
+				mLocationManager.removeUpdates(gpsListener);
+				mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, shortestDistance / 2, gpsListener);
+			}
+		} else if (shortestDistance < 200 && shortestDiff > oldShortestDistance / 4) {
+			Log.d(this.getClass().toString(), "Adjusting Network Provider to notify at " + shortestDistance / 2 + "m");
+			mLocationManager.removeUpdates(networkListener);
+			mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, shortestDistance / 2, networkListener);
+			Log.d(this.getClass().toString(), "Adjusting GPS Provider to notify at " + shortestDistance / 2 + "m");
+			mLocationManager.removeUpdates(gpsListener);
+			mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, shortestDistance / 2, gpsListener);
+		} else if (shortestDiff > oldShortestDistance / 4) {
+			Log.d(this.getClass().toString(), "Adjusting Network Provider to notify at " + shortestDistance / 2 + "m");
+			mLocationManager.removeUpdates(networkListener);
+			mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, shortestDistance / 2, networkListener);
+			mLocationManager.removeUpdates(gpsListener);
+		}
+
+		lastLocation.set(location);
+		oldShortestDistance = shortestDistance;
 
 	}
 
@@ -175,19 +187,24 @@ public class PopupTrigger extends Service {
 		 * Register the listener with the Location Manager to receive location
 		 * updates
 		 */
-
 		mLocationManager.removeUpdates(networkListener);
 		mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 10, networkListener);
 		mLocationManager.removeUpdates(gpsListener);
 		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 10, gpsListener);
-		Criteria farCriteria = new Criteria();
-		farCriteria.setPowerRequirement(Criteria.POWER_LOW);
-		String bestProvider = mLocationManager.getBestProvider(farCriteria, true);
-		Log.i(this.getClass().toString(), "The Best Provider is " + bestProvider);
 		/*
 		 * The two integers in this request are the time (ms) and distance (m)
 		 * intervals of notifications respectively.
 		 */
+
+		/*
+		 * This is just me testing the system where location Criteria are used
+		 * to determine the best Location Provider. Criteria farCriteria =
+		 * newCriteria(); farCriteria.setPowerRequirement(Criteria.POWER_LOW);
+		 * String bestProvider = mLocationManager.getBestProvider(farCriteria,
+		 * true); Log.i(this.getClass().toString(), "The Best Provider is " +
+		 * bestProvider);
+		 */
+
 		updateMap(mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
 		return START_STICKY;
 	}
@@ -221,23 +238,27 @@ public class PopupTrigger extends Service {
 	}
 
 	private float updateMap(Location currentLocation) {
-		TreeMap<Float, Location> iterateTreeMap = new TreeMap<Float, Location>();
-		iterateTreeMap.putAll(popupTreeMap);
 		float shortestDistance = 20037580;
-		popupTreeMap.clear();
-		Log.d(this.getClass().toString(), "Updating Map");
-		for (Entry<Float, Location> entry : iterateTreeMap.entrySet()) {
-			float keyVal = currentLocation.distanceTo(entry.getValue());
-			Log.d(this.getClass().toString(), "A place is " + keyVal + " away.");
-			popupTreeMap.put(keyVal, entry.getValue());
-			if (keyVal < shortestDistance) {
-				shortestDistance = keyVal;
+		if (currentLocation != null) {
+			TreeMap<Float, Location> iterateTreeMap = new TreeMap<Float, Location>();
+			iterateTreeMap.putAll(popupTreeMap);
+
+			popupTreeMap.clear();
+			Log.d(this.getClass().toString(), "Updating Map");
+			for (Entry<Float, Location> entry : iterateTreeMap.entrySet()) {
+				float keyVal = currentLocation.distanceTo(entry.getValue());
+				Log.d(this.getClass().toString(), "A place is " + keyVal + " away.");
+				popupTreeMap.put(keyVal, entry.getValue());
+				if (keyVal < shortestDistance) {
+					shortestDistance = keyVal;
+				}
 			}
+
+			Log.d(this.getClass().toString(), "Nearest location is " + shortestDistance + "m away.");
+
+			iterateTreeMap.clear();
+
 		}
-
-		Log.d(this.getClass().toString(), "Nearest location is " + shortestDistance + "m away.");
-
-		iterateTreeMap.clear();
 		return shortestDistance;
 	}
 
