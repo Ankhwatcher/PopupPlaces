@@ -41,7 +41,7 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 	public void addPlace(GeoPoint geoPoint, String popupText) {
 		SQLiteDatabase db = getWritableDatabase();
 		db.execSQL("insert into " + PLACE_TABLE_NAME + "(" + LATITUDE + ", " + LONGITUDE + ", " + POPUP_TEXT + ") " + "values(" + geoPoint.getLatitudeE6()
-				+ ", " + geoPoint.getLongitudeE6() + ", '" + popupText + "');");
+				+ ", " + geoPoint.getLongitudeE6() + ", '" + sanitizeText(popupText) + "');");
 		db.close();
 	}
 
@@ -50,7 +50,7 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 
 		Log.i(PlaceOpenHelper.class.getName(), "Deleting Popup Place at " + geoPoint.toString());
 		db.delete(PLACE_TABLE_NAME, LATITUDE + " = " + geoPoint.getLatitudeE6() + " AND " + LONGITUDE + " = " + geoPoint.getLongitudeE6() + " AND "
-				+ POPUP_TEXT + " = '" + popupText + "'", null);
+				+ POPUP_TEXT + " = '" + sanitizeText(popupText) + "'", null);
 
 		db.close();
 
@@ -59,7 +59,7 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 	public int numberOfPlaces() {
 		SQLiteDatabase db = getReadableDatabase();
 		String[] columns = new String[] { LATITUDE, COLUMN_ID };
-		
+
 		Cursor c = db.query(PLACE_TABLE_NAME, columns, columns[0] + " IS NOT NULL ", null, null, null, COLUMN_ID);
 		return c.getCount();
 	}
@@ -78,5 +78,16 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 			return c.getString(0);
 		else
 			return null;
+	}
+
+	public String sanitizeText(String input) {
+		String output = "";
+		for (int i = 0; i < input.length(); i++) {
+			if (input.charAt(i) == '\'') {
+				output += "\'";
+			}
+			output += input.charAt(i);
+		}
+		return output;
 	}
 }
