@@ -1,6 +1,29 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_about"
-        android:title="@string/menu_about"
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_DisableService"
+        android:checkable="true"
+        android:orderInCategory="0"
+        android:showAsAction="never"
+        android:title="Disable Notifications"/>
+    <item
+        android:id="@+id/menu_CenterMap"
+        android:icon="@drawable/compass"
+        android:orderInCategory="98"
+        android:showAsAction="ifRoom"
+        android:title="Center Map On Me"
+        android:titleCondensed="Center Map"/>
+    <item
+        android:id="@+id/menu_ReadAloud"
+        android:checkable="true"
+        android:orderInCategory="99"
+        android:showAsAction="never"
+        android:title="Read Out Popups"
+        android:titleCondensed="Read Popups"/>
+    <item
+        android:id="@+id/menu_about"
         android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:showAsAction="never"
+        android:title="@string/menu_about"/>
+
 </menu>

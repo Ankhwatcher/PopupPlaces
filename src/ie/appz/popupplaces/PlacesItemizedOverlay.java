@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -93,7 +94,11 @@ public class PlacesItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 				extrasBundle.putInt(PopupTrigger.NotificationLatitude, item.getPoint().getLatitudeE6());
 				extrasBundle.putInt(PopupTrigger.NotificationLongitude, item.getPoint().getLongitudeE6());
 				intent.putExtras(extrasBundle);
-				clientContext.startService(intent);
+				SharedPreferences settings = clientContext.getSharedPreferences(PlaceOpenHelper.PREFS_NAME, 0);
+				if (!settings.getBoolean(PlaceOpenHelper.SERVICE_DISABLED, false)) {
+					clientContext.startService(intent);
+				}
+				
 				/*
 				 * Notify the asynchronous thread that drawPlaces() needs to be
 				 * run

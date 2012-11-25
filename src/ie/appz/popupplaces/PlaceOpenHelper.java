@@ -10,6 +10,12 @@ import com.google.android.maps.GeoPoint;
 
 public class PlaceOpenHelper extends SQLiteOpenHelper {
 
+	/* Shared Preferences Settings */
+	public static final String PREFS_NAME = "popupplaces_prefs";
+	public static final String READ_ALOUD_ENABLED = "readaloud_enabled";
+	public static final String SERVICE_DISABLED = "service_disabled";
+	
+	/* Database Settings */
 	private static final String DATABASE_NAME = "placetable.db";
 	private static final int DATABASE_VERSION = 1;
 
@@ -28,7 +34,6 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(CREATE_PLACE_TABLE);
-
 	}
 
 	@Override

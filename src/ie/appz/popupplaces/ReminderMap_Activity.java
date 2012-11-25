@@ -5,13 +5,18 @@ import java.util.List;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -27,12 +32,11 @@ import com.google.android.maps.OverlayItem;
 public class ReminderMap_Activity extends MapActivity {
 
 	public static final String NewLongitude = "new_longitude";
-
 	public static final String NewLatitude = "new_latitude";
 
 	private MapView mapView;
-
 	private MapOverlay mapOverlay;
+
 	private boolean nowRunning = false;
 	public static String ItemChanged = "item_changed";
 
@@ -92,7 +96,10 @@ public class ReminderMap_Activity extends MapActivity {
 							extrasBundle.putInt(PopupTrigger.NotificationLatitude, tappedPoint.getLatitudeE6());
 							extrasBundle.putInt(PopupTrigger.NotificationLongitude, tappedPoint.getLongitudeE6());
 							intent.putExtras(extrasBundle);
-							startService(intent);
+							SharedPreferences settings = getSharedPreferences(PlaceOpenHelper.PREFS_NAME, 0);
+							if (!settings.getBoolean(PlaceOpenHelper.SERVICE_DISABLED, false)) {
+								startService(intent);
+							}
 							drawPlaces();
 						}
 						dialog.dismiss();
@@ -106,9 +113,7 @@ public class ReminderMap_Activity extends MapActivity {
 
 					@Override
 					public void onClick(View arg0) {
-
 						dialog.cancel();
-
 					}
 				});
 				dialog.show();
@@ -129,11 +134,13 @@ public class ReminderMap_Activity extends MapActivity {
 		mapView = (MapView) findViewById(R.id.mapview);
 		mapView.setBuiltInZoomControls(true);
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		GeoPoint oldGeo = new GeoPoint((int) (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude() * 1E6),
-				(int) (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude() * 1E6));
-		if (oldGeo != null) {
-			mapView.getController().animateTo(oldGeo);
-			mapView.getController().setZoom(14);
+		if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+			GeoPoint oldGeo = new GeoPoint((int) (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude() * 1E6),
+					(int) (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude() * 1E6));
+			if (oldGeo != null) {
+				mapView.getController().animateTo(oldGeo);
+				mapView.getController().setZoom(18);
+			}
 		}
 		mapOverlay = new MapOverlay();
 		List<Overlay> listOfOverlays = mapView.getOverlays();
@@ -143,10 +150,11 @@ public class ReminderMap_Activity extends MapActivity {
 		mapView.invalidate();
 		PlaceOpenHelper placeOpenHelper = new PlaceOpenHelper(this);
 
-		if (placeOpenHelper.numberOfPlaces() >= 1) {
+		SharedPreferences settings = getSharedPreferences(PlaceOpenHelper.PREFS_NAME, 0);
+
+		if (placeOpenHelper.numberOfPlaces() >= 1 && !settings.getBoolean(PlaceOpenHelper.READ_ALOUD_ENABLED, false)) {
 			startService(new Intent(ReminderMap_Activity.this, PopupTrigger.class));
 		}
-
 	}
 
 	@Override
@@ -174,6 +182,16 @@ public class ReminderMap_Activity extends MapActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.remindermap_menu, menu);
+		SharedPreferences settings = getSharedPreferences(PlaceOpenHelper.PREFS_NAME, 0);
+		if (settings.getBoolean(PlaceOpenHelper.READ_ALOUD_ENABLED, false)) {
+			MenuItem read_aloud_item = (MenuItem) menu.findItem(R.id.menu_ReadAloud);
+			read_aloud_item.setChecked(true);
+		}
+		if (settings.getBoolean(PlaceOpenHelper.SERVICE_DISABLED, false)) {
+			MenuItem disable_service_item = (MenuItem) menu.findItem(R.id.menu_DisableService);
+			disable_service_item.setCheckable(true);
+			disable_service_item.setChecked(true);
+		}
 		return true;
 	}
 
@@ -186,9 +204,10 @@ public class ReminderMap_Activity extends MapActivity {
 	public void drawPlaces() {
 		PlaceOpenHelper placeOpenHelper = new PlaceOpenHelper(this);
 		Cursor placeCursor = placeOpenHelper.getPlaces();
-		Drawable drawable = getResources().getDrawable(R.drawable.ic_launcher);
 
+		Drawable drawable = getResources().getDrawable(R.drawable.ic_launcher);
 		PlacesItemizedOverlay placeOverlay = new PlacesItemizedOverlay(drawable, this);
+
 		int rows = placeCursor.getCount();
 		if (rows >= 1) {
 
@@ -235,6 +254,74 @@ public class ReminderMap_Activity extends MapActivity {
 			}
 		}
 	};
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		SharedPreferences settings = getSharedPreferences(PlaceOpenHelper.PREFS_NAME, 0);
+		SharedPreferences.Editor editor = settings.edit();
+		boolean checkstatus;
+		switch (item.getItemId()) {
+		case R.id.menu_CenterMap:
+			LocationManager mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+			Criteria mCriteria = new Criteria();
+			if (mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+				mCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
+			} else if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+				mCriteria.setAccuracy(Criteria.ACCURACY_FINE);
+			}
+			mCriteria.setCostAllowed(false);
+			Toast.makeText(this, "Centering map on your location.", Toast.LENGTH_SHORT).show();
+
+			LocationListener mListener = new LocationListener() {
+				public void onLocationChanged(Location location) {
+					GeoPoint mGeoPoint = new GeoPoint((int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
+					if (mGeoPoint != null) {
+						mapView.getController().animateTo(mGeoPoint);
+					}
+				}
+
+				public void onStatusChanged(String provider, int status, Bundle extras) {
+				}
+
+				public void onProviderEnabled(String provider) {
+					Log.w(this.getClass().toString(), provider + " enabled.");
+				}
+
+				public void onProviderDisabled(String provider) {
+					Log.w(this.getClass().toString(), provider + " disabled.");
+				}
+			};
+			mLocationManager.requestSingleUpdate(mCriteria, mListener, null);
+			return true;
+
+		case R.id.menu_ReadAloud:
+			boolean read_aloud_result = settings.getBoolean(PlaceOpenHelper.READ_ALOUD_ENABLED, false);
+			editor.putBoolean(PlaceOpenHelper.READ_ALOUD_ENABLED, !read_aloud_result);
+			editor.commit();
+
+			Log.i(this.getClass().toString(), "Read_Aloud_Enabled changed to " + !read_aloud_result);
+			checkstatus = item.isChecked();
+			item.setChecked(!checkstatus);
+			return true;
+		case R.id.menu_DisableService:
+			boolean service_disabled_result = settings.getBoolean(PlaceOpenHelper.SERVICE_DISABLED, false);
+			editor.putBoolean(PlaceOpenHelper.SERVICE_DISABLED, !service_disabled_result);
+			editor.commit();
+
+			Log.i(this.getClass().toString(), "Service Disabled " + !service_disabled_result);
+			checkstatus = item.isChecked();
+			item.setChecked(!checkstatus);
+			if (service_disabled_result) {
+				startService(new Intent(ReminderMap_Activity.this, PopupTrigger.class));
+			} else {
+				stopService(new Intent(ReminderMap_Activity.this, PopupTrigger.class));
+			}
+
+			return true;
+		}
+		return false;
+	}
 
 	/*
 	 * This code tells the Thread that it should break it's loop and stop when
