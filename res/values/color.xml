@@ -8,5 +8,8 @@
     <color name="solid_red">#FFFF0000</color>
     <color name="solid_green">#FF00FF00</color>
     <color name="ics_cyan">#FF30B2E2</color>
+    <color name="translucent_cyan">#9930B2E2</color>
+    <color name="translucent_red">#99FF0000</color>
+    
 
 </resources>

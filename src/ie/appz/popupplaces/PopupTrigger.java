@@ -58,7 +58,7 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 
 		networkListener = new LocationListener() {
 			public void onLocationChanged(Location location) {
-				Log.i(this.getClass().toString(),
+				Log.i(this.getClass().getName(),
 						"New Network Location: " + location.getLatitude() + "," + location.getLongitude() + " - " + location.getAccuracy());
 				if (location.getAccuracy() < 40) {
 					if (lastLocation == null || (location.getTime() - lastLocation.getTime()) > 4000)
@@ -71,16 +71,16 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 			}
 
 			public void onProviderEnabled(String provider) {
-				Log.w(this.getClass().toString(), provider + " enabled.");
+				Log.w(this.getClass().getName(), provider + " enabled.");
 			}
 
 			public void onProviderDisabled(String provider) {
-				Log.w(this.getClass().toString(), provider + " disabled.");
+				Log.w(this.getClass().getName(), provider + " disabled.");
 			}
 		};
 		gpsListener = new LocationListener() {
 			public void onLocationChanged(Location location) {
-				Log.i(this.getClass().toString(),
+				Log.i(this.getClass().getName(),
 						"New GPS Location: " + location.getLatitude() + "," + location.getLongitude() + " - " + location.getAccuracy());
 				if (location.getAccuracy() < 35) {
 					if (lastLocation == null || (location.getTime() - lastLocation.getTime()) > 4000)
@@ -92,11 +92,11 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 			}
 
 			public void onProviderEnabled(String provider) {
-				Log.w(this.getClass().toString(), provider + " enabled.");
+				Log.w(this.getClass().getName(), provider + " enabled.");
 			}
 
 			public void onProviderDisabled(String provider) {
-				Log.w(this.getClass().toString(), provider + " disabled.");
+				Log.w(this.getClass().getName(), provider + " disabled.");
 			}
 		};
 
@@ -122,7 +122,7 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 	public void processLocation(Location location) {
 		float shortestDistance = updateMap(location);
 		float shortestDiff = oldShortestDistance - shortestDistance;
-		Log.w(this.getClass().toString(), "ShotestDiff= " + shortestDiff + "m");
+		Log.w(this.getClass().getName(), "ShotestDiff= " + shortestDiff + "m");
 		shortestDiff = (shortestDiff < 0 ? -shortestDiff : shortestDiff);
 
 		if (shortestDistance < 100) {
@@ -130,24 +130,24 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 				popupNearest();
 			} else if (shortestDiff > oldShortestDistance / 4) {
 				this.hasRestarted = false;
-				Log.i(this.getClass().toString(), "Adjusting Network Provider to notify at " + shortestDistance / 2 + "m.");
+				Log.i(this.getClass().getName(), "Adjusting Network Provider to notify at " + shortestDistance / 2 + "m.");
 				mLocationManager.removeUpdates(networkListener);
 				mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, shortestDistance / 2, networkListener);
-				Log.i(this.getClass().toString(), "Adjusting GPS Provider to notify at " + shortestDistance / 2 + "m.");
+				Log.i(this.getClass().getName(), "Adjusting GPS Provider to notify at " + shortestDistance / 2 + "m.");
 				mLocationManager.removeUpdates(gpsListener);
 				mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 45000, shortestDistance / 2, gpsListener);
 			}
 		} else if (shortestDistance < 150 && shortestDiff > oldShortestDistance / 4) {
 			this.hasRestarted = false;
-			Log.i(this.getClass().toString(), "Adjusting Network Provider to notify at " + shortestDistance / 2 + "m.");
+			Log.i(this.getClass().getName(), "Adjusting Network Provider to notify at " + shortestDistance / 2 + "m.");
 			mLocationManager.removeUpdates(networkListener);
 			mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, shortestDistance / 2, networkListener);
-			Log.i(this.getClass().toString(), "Adjusting GPS Provider to notify at " + shortestDistance / 2 + "m.");
+			Log.i(this.getClass().getName(), "Adjusting GPS Provider to notify at " + shortestDistance / 2 + "m.");
 			mLocationManager.removeUpdates(gpsListener);
 			mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 45000, shortestDistance / 2, gpsListener);
 		} else if (shortestDiff > oldShortestDistance / 4) {
 			this.hasRestarted = false;
-			Log.i(this.getClass().toString(), "Adjusting Network Provider to notify at " + shortestDistance / 2 + "m");
+			Log.i(this.getClass().getName(), "Adjusting Network Provider to notify at " + shortestDistance / 2 + "m");
 			mLocationManager.removeUpdates(networkListener);
 			mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, shortestDistance / 2, networkListener);
 			mLocationManager.removeUpdates(gpsListener);
@@ -163,7 +163,7 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 		SharedPreferences settings = getSharedPreferences(PlaceOpenHelper.PREFS_NAME, 0);
 		if (!settings.getBoolean(PlaceOpenHelper.SERVICE_DISABLED, false)) {
 			Location oldLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-			Log.w(this.getClass().toString(), "PopupTrigger Service has recieved onStartCommand");
+			Log.w(this.getClass().getName(), "PopupTrigger Service has recieved onStartCommand");
 			if (intent == null) {
 				hasRestarted = true;
 				initializeLocation_UpdateFromDatabase();
@@ -180,14 +180,14 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 							FireableLocation newLocation = new FireableLocation("FromUser");
 							newLocation.setLatitude(extras.getInt(ReminderMap_Activity.NewLatitude) / 1E6);
 							newLocation.setLongitude(extras.getInt(ReminderMap_Activity.NewLongitude) / 1E6);
-							Log.d(this.getClass().toString(), "Adding Key: " + oldLocation.distanceTo(newLocation) + " Location: " + newLocation.getLatitude()
+							Log.d(this.getClass().getName(), "Adding Key: " + oldLocation.distanceTo(newLocation) + " Location: " + newLocation.getLatitude()
 									+ "," + newLocation.getLongitude());
 							popupTreeMap.put(oldLocation.distanceTo(newLocation), newLocation);
 						} else {
 							Location newLocation = new Location("FromUser");
 							newLocation.setLatitude(extras.getInt(ReminderMap_Activity.NewLatitude) / 1E6);
 							newLocation.setLongitude(extras.getInt(ReminderMap_Activity.NewLongitude) / 1E6);
-							Log.d(this.getClass().toString(),
+							Log.d(this.getClass().getName(),
 									"Removing Key: " + oldLocation.distanceTo(newLocation) + " Location: " + newLocation.getLatitude() + ","
 											+ newLocation.getLongitude());
 							initializeLocation_UpdateFromDatabase();
@@ -217,7 +217,7 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 			 * farCriteria = newCriteria();
 			 * farCriteria.setPowerRequirement(Criteria.POWER_LOW); String
 			 * bestProvider = mLocationManager.getBestProvider(farCriteria,
-			 * true); Log.i(this.getClass().toString(), "The Best Provider is "
+			 * true); Log.i(this.getClass().getName(), "The Best Provider is "
 			 * + bestProvider);
 			 */
 			if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -227,7 +227,7 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 			}
 			return START_STICKY;
 		} else {
-			Log.e(this.getClass().toString(), "onStartCommand called when PopupTrigger is disabled.");
+			Log.e(this.getClass().getName(), "onStartCommand called when PopupTrigger is disabled.");
 			
 			return START_STICKY;
 		}
@@ -266,11 +266,11 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 				}
 
 				public void onProviderEnabled(String provider) {
-					Log.w(this.getClass().toString(), provider + " enabled.");
+					Log.w(this.getClass().getName(), provider + " enabled.");
 				}
 
 				public void onProviderDisabled(String provider) {
-					Log.w(this.getClass().toString(), provider + " disabled.");
+					Log.w(this.getClass().getName(), provider + " disabled.");
 				}
 			};
 			mLocationManager.requestSingleUpdate(mCriteria, mListener, null);
@@ -296,14 +296,14 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 
 					for (Entry<Float, FireableLocation> entry : iteratePopupTMap.entrySet()) {
 						if (databaseLocation.distanceTo(entry.getValue()) == 0) {
-							Log.d(this.getClass().toString(), "Keeping " + databaseLocation.getLatitude() + "," + databaseLocation.getLongitude()
+							Log.d(this.getClass().getName(), "Keeping " + databaseLocation.getLatitude() + "," + databaseLocation.getLongitude()
 									+ " currently " + oldLocation.distanceTo(databaseLocation) + "m away in PopupTreeMap.");
 							popupTreeMap.put(oldLocation.distanceTo(databaseLocation), entry.getValue());
 							onTree = true;
 						}
 					}
 					if (!onTree) {
-						Log.d(this.getClass().toString(), "Loading " + databaseLocation.getLatitude() + "," + databaseLocation.getLongitude() + " currently "
+						Log.d(this.getClass().getName(), "Loading " + databaseLocation.getLatitude() + "," + databaseLocation.getLongitude() + " currently "
 								+ oldLocation.distanceTo(databaseLocation) + "m away into PopupTreeMap.");
 						popupTreeMap.put(oldLocation.distanceTo(databaseLocation), databaseLocation);
 					}
@@ -331,10 +331,10 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 
 			float keyVal;
 
-			Log.i(this.getClass().toString(), "Updating PopupTreeMap, which has " + iteratePopupTMap.size() + " entries.");
+			Log.i(this.getClass().getName(), "Updating PopupTreeMap, which has " + iteratePopupTMap.size() + " entries.");
 			for (Entry<Float, FireableLocation> entry : iteratePopupTMap.entrySet()) {
 				keyVal = currentLocation.distanceTo(entry.getValue());
-				//Log.d(this.getClass().toString(), "A place is " + keyVal + " away.");
+				//Log.d(this.getClass().getName(), "A place is " + keyVal + " away.");
 				popupTreeMap.put(keyVal, entry.getValue());
 				if (entry.getValue().isFired() && keyVal >= 100f) {
 					entry.getValue().setFired(false);
@@ -344,7 +344,7 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 				}
 			}
 
-			Log.d(this.getClass().toString(), "Nearest location is " + shortestDistance + "m away.");
+			Log.d(this.getClass().getName(), "Nearest location is " + shortestDistance + "m away.");
 			iteratePopupTMap.clear();
 		}
 		return shortestDistance;
@@ -371,7 +371,7 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 			String popupText = placeOpenHelper.getPopupText(popupPlaceGeoPoint);
 
 			if (popupText != null && !popupPlace.isFired() && !this.hasRestarted) {
-				Log.i(this.getClass().toString(), "Popping Location " + popupPlace.getLatitude() + "," + popupPlace.getLongitude());
+				Log.i(this.getClass().getName(), "Popping Location " + popupPlace.getLatitude() + "," + popupPlace.getLongitude());
 				Intent notificationIntent = new Intent(this, ReminderMap_Activity.class);
 				notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -403,7 +403,7 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 			} else {
 				popupPlace.setFired(true);
 				this.hasRestarted = false;
-				Log.i(this.getClass().toString(), "Not Popping Location " + popupPlace.getLatitude() + "," + popupPlace.getLongitude()
+				Log.i(this.getClass().getName(), "Not Popping Location " + popupPlace.getLatitude() + "," + popupPlace.getLongitude()
 						+ " it has already fired.");
 			}
 			return !popupPlace.isFired();
@@ -418,23 +418,23 @@ public class PopupTrigger extends Service implements TextToSpeech.OnInitListener
 			if (mTextToSpeech.isLanguageAvailable(Locale.getDefault()) >= 0) {
 				result = mTextToSpeech.setLanguage(Locale.getDefault());
 			} else {
-				Log.w(this.getClass().toString(), "Default Language not available, falling back to US English.");
+				Log.w(this.getClass().getName(), "Default Language not available, falling back to US English.");
 				result = mTextToSpeech.setLanguage(Locale.US);
 			}
 			if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-				Log.e(this.getClass().toString(), "TextToSpeech: This Language is not supported");
+				Log.e(this.getClass().getName(), "TextToSpeech: This Language is not supported");
 			} else {
 				textToSpeech_Initialized = true;
 			}
 		} else {
-			Log.e(this.getClass().toString(), "TextToSpeech: Initilization Failed!");
+			Log.e(this.getClass().getName(), "TextToSpeech: Initilization Failed!");
 		}
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		Log.d(this.getClass().toString(), "PopupTrigger Service OnDestroy()'d.");
+		Log.d(this.getClass().getName(), "PopupTrigger Service OnDestroy()'d.");
 		mLocationManager.removeUpdates(networkListener);
 		mLocationManager.removeUpdates(gpsListener);
 		mNotificationManager.cancelAll();

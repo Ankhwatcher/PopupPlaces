@@ -167,7 +167,7 @@ public class ReminderMap_Activity extends MapActivity {
 
 	@Override
 	public void onNewIntent(Intent intent) {
-		Log.i(this.getClass().toString(), "onNewIntent hit");
+		Log.i(this.getClass().getName(), "onNewIntent hit");
 		Bundle extras = intent.getExtras();
 		if (extras != null && extras.containsKey(PopupTrigger.NotificationLongitude) && extras.containsKey(PopupTrigger.NotificationLatitude)) {
 
@@ -285,11 +285,11 @@ public class ReminderMap_Activity extends MapActivity {
 				}
 
 				public void onProviderEnabled(String provider) {
-					Log.w(this.getClass().toString(), provider + " enabled.");
+					Log.w(this.getClass().getName(), provider + " enabled.");
 				}
 
 				public void onProviderDisabled(String provider) {
-					Log.w(this.getClass().toString(), provider + " disabled.");
+					Log.w(this.getClass().getName(), provider + " disabled.");
 				}
 			};
 			mLocationManager.requestSingleUpdate(mCriteria, mListener, null);
@@ -300,7 +300,7 @@ public class ReminderMap_Activity extends MapActivity {
 			editor.putBoolean(PlaceOpenHelper.READ_ALOUD_ENABLED, !read_aloud_result);
 			editor.commit();
 
-			Log.i(this.getClass().toString(), "Read_Aloud_Enabled changed to " + !read_aloud_result);
+			Log.i(this.getClass().getName(), "Read_Aloud_Enabled changed to " + !read_aloud_result);
 			checkstatus = item.isChecked();
 			item.setChecked(!checkstatus);
 			return true;
@@ -309,7 +309,7 @@ public class ReminderMap_Activity extends MapActivity {
 			editor.putBoolean(PlaceOpenHelper.SERVICE_DISABLED, !service_disabled_result);
 			editor.commit();
 
-			Log.i(this.getClass().toString(), "Service Disabled " + !service_disabled_result);
+			Log.i(this.getClass().getName(), "Service Disabled " + !service_disabled_result);
 			checkstatus = item.isChecked();
 			item.setChecked(!checkstatus);
 			if (service_disabled_result) {
@@ -317,9 +317,13 @@ public class ReminderMap_Activity extends MapActivity {
 			} else {
 				stopService(new Intent(ReminderMap_Activity.this, PopupTrigger.class));
 			}
-
+			return true;
+		case R.id.menu_about:
+			Intent intent = new Intent(this, AboutPage_Activity.class);
+			startActivity(intent);
 			return true;
 		}
+		
 		return false;
 	}
 

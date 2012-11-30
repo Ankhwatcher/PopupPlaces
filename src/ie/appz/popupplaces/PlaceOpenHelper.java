@@ -38,7 +38,7 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.w(PlaceOpenHelper.class.getName(), "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
+		Log.w(this.getClass().getName(), "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
 		db.execSQL("DROP TABLE IF EXISTS " + PLACE_TABLE_NAME);
 		onCreate(db);
 	}
@@ -53,7 +53,7 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 	public void deletePlace(GeoPoint geoPoint, String popupText) {
 		SQLiteDatabase db = getWritableDatabase();
 
-		Log.i(PlaceOpenHelper.class.getName(), "Deleting Popup Place at " + geoPoint.toString());
+		Log.i(this.getClass().getName(), "Deleting Popup Place at " + geoPoint.toString());
 		db.delete(PLACE_TABLE_NAME, LATITUDE + " = " + geoPoint.getLatitudeE6() + " AND " + LONGITUDE + " = " + geoPoint.getLongitudeE6() + " AND "
 				+ POPUP_TEXT + " = '" + sanitizeText(popupText) + "'", null);
 
