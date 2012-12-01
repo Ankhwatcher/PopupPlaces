@@ -127,6 +127,26 @@ public class ReminderMap_Activity extends MapActivity {
 
 	}
 
+	LocationListener mListener = new LocationListener() {
+		public void onLocationChanged(Location location) {
+			GeoPoint mGeoPoint = new GeoPoint((int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
+			if (mGeoPoint != null) {
+				mapView.getController().animateTo(mGeoPoint);
+			}
+		}
+
+		public void onStatusChanged(String provider, int status, Bundle extras) {
+		}
+
+		public void onProviderEnabled(String provider) {
+			Log.w(this.getClass().getName(), provider + " enabled.");
+		}
+
+		public void onProviderDisabled(String provider) {
+			Log.w(this.getClass().getName(), provider + " disabled.");
+		}
+	};
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -134,13 +154,26 @@ public class ReminderMap_Activity extends MapActivity {
 		mapView = (MapView) findViewById(R.id.mapview);
 		mapView.setBuiltInZoomControls(true);
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		GeoPoint oldGeo = null;
+		
 		if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-			GeoPoint oldGeo = new GeoPoint((int) (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude() * 1E6),
-					(int) (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude() * 1E6));
-			if (oldGeo != null) {
+			try {
+				oldGeo = new GeoPoint((int) (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude() * 1E6),
+						(int) (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude() * 1E6));
 				mapView.getController().animateTo(oldGeo);
-				mapView.getController().setZoom(18);
+			} catch (NullPointerException e) {
+				Log.e(this.getClass().getName(), "No valid previous location, requesting a single location update instead.");
+				Toast.makeText(this, "No valid previous location, requesting a single location update instead.", Toast.LENGTH_LONG).show();
+				Criteria mCriteria = new Criteria();
+				if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+					mCriteria.setAccuracy(Criteria.ACCURACY_COARSE);
+				} else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+					mCriteria.setAccuracy(Criteria.ACCURACY_FINE);
+				}
+				mCriteria.setCostAllowed(false);
+				locationManager.requestSingleUpdate(mCriteria, mListener, null);
 			}
+			mapView.getController().setZoom(18);
 		}
 		mapOverlay = new MapOverlay();
 		List<Overlay> listOfOverlays = mapView.getOverlays();
@@ -273,25 +306,6 @@ public class ReminderMap_Activity extends MapActivity {
 			mCriteria.setCostAllowed(false);
 			Toast.makeText(this, "Centering map on your location.", Toast.LENGTH_SHORT).show();
 
-			LocationListener mListener = new LocationListener() {
-				public void onLocationChanged(Location location) {
-					GeoPoint mGeoPoint = new GeoPoint((int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
-					if (mGeoPoint != null) {
-						mapView.getController().animateTo(mGeoPoint);
-					}
-				}
-
-				public void onStatusChanged(String provider, int status, Bundle extras) {
-				}
-
-				public void onProviderEnabled(String provider) {
-					Log.w(this.getClass().getName(), provider + " enabled.");
-				}
-
-				public void onProviderDisabled(String provider) {
-					Log.w(this.getClass().getName(), provider + " disabled.");
-				}
-			};
 			mLocationManager.requestSingleUpdate(mCriteria, mListener, null);
 			return true;
 
@@ -323,7 +337,7 @@ public class ReminderMap_Activity extends MapActivity {
 			startActivity(intent);
 			return true;
 		}
-		
+
 		return false;
 	}
 
