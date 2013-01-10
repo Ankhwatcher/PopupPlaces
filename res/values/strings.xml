@@ -12,13 +12,11 @@
 
     <string-array name="about_items">
         <item>Author: Rory Glynn\nFollow Rory on Google+</item>
-        <item>Author: Nic Roland\nFollow Nic on Twitter</item>
         <item>The Popup Places Blog</item>
         <item>Popup Places on Github</item>
     </string-array>
     <string-array name="about_links">
         <item>http://j.mp/V8Yrdt</item>
-        <item>http://j.mp/115ruor</item>
         <item>http://j.mp/THFlO3</item>
         <item>http://j.mp/Qtmjvt</item>
         <item>lemon</item>
