@@ -14,6 +14,7 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 	public static final String PREFS_NAME = "popupplaces_prefs";
 	public static final String READ_ALOUD_ENABLED = "readaloud_enabled";
 	public static final String SERVICE_DISABLED = "service_disabled";
+	public static final String FIRST_RUN = "first_run";
 	
 	/* Database Settings */
 	private static final String DATABASE_NAME = "placetable.db";

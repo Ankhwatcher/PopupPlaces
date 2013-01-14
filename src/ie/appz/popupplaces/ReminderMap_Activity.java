@@ -8,6 +8,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
@@ -48,6 +49,7 @@ public class ReminderMap_Activity extends MapActivity implements OnItemClickList
 
 	private MapView mapView;
 	private MapOverlay mapOverlay;
+	private Menu mMenu = null;
 	private ListView searchResultsListView;
 	private List<Address> foundAddresses = null;
 	private Geocoder mGeoCoder = null;
@@ -85,6 +87,7 @@ public class ReminderMap_Activity extends MapActivity implements OnItemClickList
 		public boolean onTap(final GeoPoint tappedPoint, MapView mapView) {
 
 			if (tap == true) {
+
 				final Dialog dialog = new Dialog(ReminderMap_Activity.this);
 				dialog.setContentView(R.layout.newplacedialog_layout);
 				dialog.setTitle(R.string.newplacedialog_text);
@@ -98,6 +101,8 @@ public class ReminderMap_Activity extends MapActivity implements OnItemClickList
 
 					@Override
 					public void onClick(View arg0) {
+
+						searchResultsListView.setVisibility(View.GONE);
 
 						String popupNote = inputBox.getText().toString();
 						if (popupNote.length() > 0) {
@@ -242,6 +247,18 @@ public class ReminderMap_Activity extends MapActivity implements OnItemClickList
 		drawPlaces();
 		nowRunning = true;
 		new Thread(mUpdate).start();
+
+		SharedPreferences settings = getSharedPreferences(PlaceOpenHelper.PREFS_NAME, 0);
+		if (settings.getBoolean(PlaceOpenHelper.FIRST_RUN, true)) {
+			searchResultsListView.setVisibility(View.VISIBLE);
+			ArrayList<String> stringArrayList = new ArrayList<String>();
+			stringArrayList.add("Tap anywhere on the map to add a Popup Place!");
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(parentContext, android.R.layout.simple_list_item_1, stringArrayList);
+			searchResultsListView.setAdapter(adapter);
+			SharedPreferences.Editor mEditor = settings.edit();
+			mEditor.putBoolean(PlaceOpenHelper.FIRST_RUN, false);
+			mEditor.commit();
+		}
 	}
 
 	@Override
@@ -261,6 +278,7 @@ public class ReminderMap_Activity extends MapActivity implements OnItemClickList
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.remindermap_menu, menu);
+		mMenu = menu;
 		SharedPreferences settings = getSharedPreferences(PlaceOpenHelper.PREFS_NAME, 0);
 		if (settings.getBoolean(PlaceOpenHelper.READ_ALOUD_ENABLED, false)) {
 			MenuItem read_aloud_item = (MenuItem) menu.findItem(R.id.menu_ReadAloud);
@@ -480,5 +498,11 @@ public class ReminderMap_Activity extends MapActivity implements OnItemClickList
 			Log.i(this.getClass().toString(), "Zooming to " + foundAddresses.get(position).getLatitude() + "," + foundAddresses.get(position).getLongitude());
 			mapView.getController().animateTo(foundGeo);
 		}
+	}
+
+	@Override
+	public boolean onSearchRequested() {
+		mMenu.findItem(R.id.menu_Search).expandActionView();
+		return false;
 	}
 }
