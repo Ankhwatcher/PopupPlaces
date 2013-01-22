@@ -1,5 +1,6 @@
 package ie.appz.popupplaces;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,7 +16,7 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 	public static final String READ_ALOUD_ENABLED = "readaloud_enabled";
 	public static final String SERVICE_DISABLED = "service_disabled";
 	public static final String FIRST_RUN = "first_run";
-	
+
 	/* Database Settings */
 	private static final String DATABASE_NAME = "placetable.db";
 	private static final int DATABASE_VERSION = 1;
@@ -49,6 +50,19 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 		db.execSQL("insert into " + PLACE_TABLE_NAME + "(" + LATITUDE + ", " + LONGITUDE + ", " + POPUP_TEXT + ") " + "values(" + geoPoint.getLatitudeE6()
 				+ ", " + geoPoint.getLongitudeE6() + ", '" + sanitizeText(popupText) + "');");
 		db.close();
+	}
+
+	public void editPlace(GeoPoint geoPoint, String popupText) {
+		SQLiteDatabase db = getWritableDatabase();
+		String whereClause = LATITUDE + " = " + geoPoint.getLatitudeE6() + " AND " + LONGITUDE + " = " + geoPoint.getLongitudeE6();
+		ContentValues values = new ContentValues();
+		values.put(POPUP_TEXT, sanitizeText(popupText));
+		if (db.update(PLACE_TABLE_NAME, values, whereClause, null) == 0) {
+			db.close();
+			addPlace(geoPoint, popupText);
+		} else {
+			db.close();
+		}
 	}
 
 	public void deletePlace(GeoPoint geoPoint, String popupText) {

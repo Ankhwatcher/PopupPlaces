@@ -12,8 +12,11 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
@@ -52,14 +55,15 @@ public class PlacesItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 	}
 
 	@Override
-	protected boolean onTap(int index) {
+	protected boolean onTap(final int index) {
 		final OverlayItem item = mOverlays.get(index);
 
 		final Dialog dialog = new Dialog(this.clientContext);
 		dialog.setContentView(R.layout.oldplacedialog_layout);
 		dialog.setTitle(item.getTitle());
-		TextView textView = (TextView) dialog.findViewById(R.id.popupText);
+		final TextView textView = (TextView) dialog.findViewById(R.id.popupText);
 		textView.setText(item.getSnippet());
+
 		dialog.setCancelable(true);
 		WindowManager.LayoutParams WMLP = dialog.getWindow().getAttributes();
 		dialog.getWindow().setAttributes(WMLP);
@@ -72,6 +76,17 @@ public class PlacesItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 			@Override
 			public void onClick(View arg0) {
 				dialog.dismiss();
+			}
+		});
+
+		final Button editButton = (Button) dialog.findViewById(R.id.editButton);
+
+		editButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				dialog.dismiss();
+				onEdit(index);
+
 			}
 		});
 
@@ -98,7 +113,7 @@ public class PlacesItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 				if (!settings.getBoolean(PlaceOpenHelper.SERVICE_DISABLED, false)) {
 					clientContext.startService(intent);
 				}
-				
+
 				/*
 				 * Notify the asynchronous thread that drawPlaces() needs to be
 				 * run
@@ -113,6 +128,62 @@ public class PlacesItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 		});
 		dialog.show();
 		return true;
+	}
+
+	public boolean onEdit(int index) {
+		final OverlayItem item = mOverlays.get(index);
+
+		final Dialog dialog = new Dialog(clientContext);
+		dialog.setContentView(R.layout.newplacedialog_layout);
+		dialog.setTitle(R.string.newplacedialog_text);
+		dialog.setCancelable(true);
+		final PlaceOpenHelper placeOpenHelper = new PlaceOpenHelper(clientContext);
+		final EditText inputBox = (EditText) dialog.findViewById(R.id.editText1);
+		inputBox.setText(item.getSnippet());
+
+		/* Click on the Save Button */
+		Button saveButton = (Button) dialog.findViewById(R.id.saveButton);
+		saveButton.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				GeoPoint tappedPoint = item.getPoint();
+
+				String popupNote = inputBox.getText().toString();
+				if (popupNote.length() > 0) {
+
+					placeOpenHelper.editPlace(tappedPoint, popupNote);
+
+					Toast toast = Toast.makeText(clientContext, tappedPoint.toString() + ", \"" + popupNote + "\" added.", Toast.LENGTH_LONG);
+					toast.show();
+
+				}
+				/*
+				 * Notify the asynchronous thread that drawPlaces() needs to be
+				 * run
+				 */
+
+				synchronized (runDraw) {
+					runDraw.notify();
+				}
+				dialog.dismiss();
+
+			}
+		});
+
+		/* Click on the Cancel Button */
+		Button cancelButton = (Button) dialog.findViewById(R.id.cancelButton);
+		cancelButton.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				dialog.cancel();
+			}
+		});
+		dialog.show();
+		placeOpenHelper.close();
+		return true;
+
 	}
 
 	public void draw(android.graphics.Canvas canvas, MapView mapView, boolean shadow) {

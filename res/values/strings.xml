@@ -28,5 +28,6 @@
     <string name="email_report">REPORT:</string>
     <string name="email_popupplaces_address">PopupPlaces@appz.ie</string>
     <string name="version_number_">"Version Number: "</string>
+    <string name="edit">Edit</string>
 
 </resources>
