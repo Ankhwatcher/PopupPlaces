@@ -29,5 +29,10 @@
     <string name="email_popupplaces_address">PopupPlaces@appz.ie</string>
     <string name="version_number_">"Version Number: "</string>
     <string name="edit">Edit</string>
+    <string name="menu_title_search">Search</string>
+    <string name="menu_title_disable_notifications">Disable Notifications</string>
+    <string name="menu_title_center_map_on_me">Center Map On Me</string>
+    <string name="menu_title_read_out_popups">Read Out Popups</string>
+    <string name="user_intruction_1">Long-press anywhere on the map to add a Popup Place!</string>
 
 </resources>

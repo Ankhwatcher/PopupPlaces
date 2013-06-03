@@ -2,14 +2,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/solid_white"
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/popupText"
+        android:id="@+id/infoTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="1" />
 
+    <TextView
+        android:id="@+id/infoText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1" />
+    
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -17,24 +24,22 @@
 
         <Button
             android:id="@+id/deleteButton"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="@string/delete" />
 
         <Button
             android:id="@+id/editButton"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="@string/edit" />
 
         <Button
             android:id="@+id/okayButton"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="@string/okay" />
     </LinearLayout>
+    
 
 </LinearLayout>

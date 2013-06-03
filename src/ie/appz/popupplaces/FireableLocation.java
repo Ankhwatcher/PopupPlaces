@@ -8,6 +8,7 @@ import android.location.Location;
 
 public class FireableLocation extends Location {
 	private boolean mHasFired = false;
+	private int columnId;
 
 	public FireableLocation(String s) {
 		super(s);
@@ -26,5 +27,19 @@ public class FireableLocation extends Location {
 	 */
 	public void setFired(boolean hasFired) {
 		mHasFired = hasFired;
+	}
+
+	/*
+	 * Returns the ColumnId associated with this location.
+	 */
+	public int getColumnId() {
+		return columnId;
+	}
+
+	/*
+	 * Sets the ColumnId associated with this location.
+	 */
+	public void setColumnId(int columnId) {
+		this.columnId = columnId;
 	}
 }

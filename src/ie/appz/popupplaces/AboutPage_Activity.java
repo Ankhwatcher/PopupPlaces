@@ -3,13 +3,11 @@ package ie.appz.popupplaces;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -19,14 +17,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class AboutPage_Activity extends Activity {
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.MenuItem;
+
+public class AboutPage_Activity extends SherlockActivity {
 	Context classContext = this;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.aboutpage_layout);
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		((TextView) findViewById(R.id.aboutRequest)).setOnTouchListener(aboutRequest_Touch);
 		((TextView) findViewById(R.id.aboutReport)).setOnTouchListener(aboutReport_Touch);
 
@@ -95,7 +96,7 @@ public class AboutPage_Activity extends Activity {
 			TextView textView = (TextView) v;
 
 			if (me.getAction() == MotionEvent.ACTION_DOWN) {
-				textView.setBackgroundColor(getResources().getColor(R.color.ics_cyan));
+				textView.setBackgroundColor(getResources().getColor(R.color.highlight_cyan));
 
 				Intent emailIntent = new Intent(Intent.ACTION_SEND);
 				emailIntent.setType("message/rfc822");

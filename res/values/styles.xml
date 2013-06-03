@@ -1,5 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+File created by the Android Action Bar Style Generator
+http://jgilfelt.github.io/android-actionbarstylegenerator/#name=ie_appz_theme&compat=sherlock&theme=light_dark&actionbarstyle=solid&texture=1&hairline=1&backColor=299c06%2C100&secondaryColor=1a6502%2C100&tabColor=5dce39%2C100&tertiaryColor=3f3f3f%2C100&accentColor=5dce39%2C100&cabBackColor=002E3E%2C100&cabHighlightColor=5dce39%2C100
+-->
+
 <resources>
 
-    <style name="AppTheme" parent="android:Theme.Light" />
+    <style name="Theme.Ie_appz_theme" parent="@style/Theme.Sherlock.Light.DarkActionBar">
+        <item name="actionBarItemBackground">@drawable/selectable_background_ie_appz_theme</item>
+        <item name="popupMenuStyle">@style/PopupMenu.Ie_appz_theme</item>
+        <item name="dropDownListViewStyle">@style/DropDownListView.Ie_appz_theme</item>
+        <item name="actionBarTabStyle">@style/ActionBarTabStyle.Ie_appz_theme</item>
+        <item name="actionDropDownStyle">@style/DropDownNav.Ie_appz_theme</item>
+        <item name="actionBarStyle">@style/ActionBar.Solid.Ie_appz_theme</item>
+        <item name="actionModeBackground">@drawable/cab_background_top_ie_appz_theme</item>
+        <item name="actionModeSplitBackground">@drawable/cab_background_bottom_ie_appz_theme</item>
+        <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Ie_appz_theme</item>
+
+        <!-- Light.DarkActionBar specific -->
+        <item name="actionBarWidgetTheme">@style/Theme.Ie_appz_theme.Widget</item>
+    </style>
+
+    <style name="ActionBar.Solid.Ie_appz_theme" parent="@style/Widget.Sherlock.Light.ActionBar.Solid.Inverse">
+        <item name="background">@drawable/ab_solid_ie_appz_theme</item>
+        <item name="backgroundStacked">@drawable/ab_stacked_solid_ie_appz_theme</item>
+        <item name="backgroundSplit">@drawable/ab_bottom_solid_ie_appz_theme</item>
+        <item name="progressBarStyle">@style/ProgressBar.Ie_appz_theme</item>
+    </style>
+
+    <style name="ActionBar.Transparent.Ie_appz_theme" parent="@style/Widget.Sherlock.ActionBar">
+        <item name="background">@drawable/ab_transparent_ie_appz_theme</item>
+        <item name="progressBarStyle">@style/ProgressBar.Ie_appz_theme</item>
+    </style>
+
+    <style name="PopupMenu.Ie_appz_theme" parent="@style/Widget.Sherlock.ListPopupWindow">
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_ie_appz_theme</item>
+    </style>
+
+    <style name="DropDownListView.Ie_appz_theme" parent="@style/Widget.Sherlock.ListView.DropDown">
+        <item name="android:listSelector">@drawable/selectable_background_ie_appz_theme</item>
+    </style>
+
+    <style name="ActionBarTabStyle.Ie_appz_theme" parent="@style/Widget.Sherlock.ActionBar.TabView">
+        <item name="android:background">@drawable/tab_indicator_ab_ie_appz_theme</item>
+    </style>
+
+    <style name="DropDownNav.Ie_appz_theme" parent="@style/Widget.Sherlock.Spinner.DropDown.ActionBar">
+        <item name="android:background">@drawable/spinner_background_ab_ie_appz_theme</item>
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_ie_appz_theme</item>
+        <item name="android:dropDownSelector">@drawable/selectable_background_ie_appz_theme</item>
+    </style>
+
+    <style name="ProgressBar.Ie_appz_theme" parent="@style/Widget.Sherlock.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/progress_horizontal_ie_appz_theme</item>
+    </style>
+
+    <style name="ActionButton.CloseMode.Ie_appz_theme" parent="@style/Widget.Sherlock.ActionButton.CloseMode">
+        <item name="android:background">@drawable/btn_cab_done_ie_appz_theme</item>
+    </style>
+
+    <!-- this style is only referenced in a Light.DarkActionBar based theme -->
+    <style name="Theme.Ie_appz_theme.Widget" parent="@style/Theme.Sherlock">
+        <item name="popupMenuStyle">@style/PopupMenu.Ie_appz_theme</item>
+        <item name="dropDownListViewStyle">@style/DropDownListView.Ie_appz_theme</item>
+    </style>
+
+    <style name="ListItem">
+        <item name="android:background">@color/solid_white</item>
+    </style>
+
+    <style name="ListItem.Divider">
+        <item name="android:background">@color/card_item_divider_grey</item>
+    </style>
+
+    <style name="SearchResult" parent="@android:style/TextAppearance">
+        <item name="android:textSize">26sp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@color/card_item_grey</item>
+    </style>
+
+    <style name="CodeFont" parent="@android:style/TextAppearance.Medium">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/solid_black</item>
+        <item name="android:typeface">monospace</item>
+    </style>
+
+    <style name="WidgetTitle" parent="@android:style/TextAppearance.Large">
+        <item name="android:textColor">@color/solid_white</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Tracker" parent="@android:style/TextAppearance.Large">
+        <item name="android:textColor">@color/card_item_blue</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Price" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@color/solid_black</item>
+    </style>
+
+    <style name="Dialog" parent="Theme.Ie_appz_theme">
+        <item name="background">@color/background_holo_light</item>
+    </style>
+
+    <style name="Dialog.Title" parent="@android:style/TextAppearance.Large">
+        
+        <item name="android:textColor">@color/solid_white</item>
+    </style>
+
+    <style name="Dialog.Text" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@color/solid_black</item>
+    </style>
 
 </resources>

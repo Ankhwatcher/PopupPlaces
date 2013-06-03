@@ -3,18 +3,18 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
-    <com.google.android.maps.MapView
-        android:id="@+id/mapview"
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:apiKey="@string/release_maps_key"
         android:clickable="true" />
 
     <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/translucent_white"
-        android:layout_margin="8dip" />
-	
+        android:layout_margin="8dip"
+        android:background="@color/translucent_white" />
+
 </FrameLayout>

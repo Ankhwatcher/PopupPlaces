@@ -1,17 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <color name="pressed_ie_appz_theme">#CC5DCE39</color>
+    <!-- Solid Colors -->
     <color name="solid_black">#FF000000</color>
     <color name="solid_white">#FFFFFFFF</color>
-    <color name="translucent_white">#F0FFFFFF</color>
-    <color name="translucent_grey">#AA202020</color>
-    <color name="translucent_light_grey">#66202020</color>
+    <color name="solid_grey">#FF202020</color>
+    <color name="solid_light_grey">#FFE0E0E0</color>
     <color name="solid_blue">#FF0000FF</color>
     <color name="solid_red">#FFFF0000</color>
     <color name="solid_green">#FF00FF00</color>
-    <color name="ics_cyan">#FF30B2E2</color>
+    <color name="solid_purple">#FF400080</color>
+    <color name="background_holo_light">#fff3f3f3</color>
+
+    <!-- translucent Colors -->
+    <color name="translucent_light_grey">#66D1D1D1</color>
+    <color name="translucent_white">#F0FFFFFF</color>
+    <color name="translucent_grey">#AA202020</color>
+
+    <!-- Dark Colors for lines on graphs -->
+    <color name="dark_yellow">#FFEBEB00</color>
+    <color name="dark_blue">#FF0000A0</color>
+    <color name="dark_green">#FF00A100</color>
+    <color name="dark_red">#FF800000</color>
+
+    <!-- Highlight Colors -->
+    <color name="highlight_cyan">#FF30B2E2</color>
+    <color name="highlight_green">#FF2AEA71</color>
+    <color name="highlight_orange">#FFFF9B2D</color>
+    <color name="highlight_red">#FFFF522D</color>
     <color name="translucent_cyan">#9930B2E2</color>
     <color name="translucent_red">#99FF0000</color>
-    
+    <color name="translucent_navy">#cc000080</color>
+    <color name="md__transparent">#00000000</color>
+
+    <!-- Colors for the cards used in Search and Favorites -->
+    <color name="card_item_grey">#FF090909</color>
+    <color name="card_item_divider_grey">#FFc6c6c6</color>
+    <color name="card_item_blue">#FF0099CC</color>
+    <color name="card_item_green">#FF669900</color>
 
 </resources>
