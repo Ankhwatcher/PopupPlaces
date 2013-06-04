@@ -165,44 +165,49 @@ public class PlaceOpenHelper extends SQLiteOpenHelper {
 		db.update(PLACE_TABLE_NAME, values, whereClause, null);
 		db.close();
 	}
-/*
-	public int deletePlace(GeoPoint geoPoint, String popupText) {
+
+	public void movePlace(int Id, LatLng newLatLng) {
 		SQLiteDatabase db = getWritableDatabase();
-
-		Log.i(this.getClass().getName(),
-				"Deleting Popup Place at " + geoPoint.toString());
-		int deleteResult = db.delete(PLACE_TABLE_NAME, LATITUDE + " = "
-				+ (double) (geoPoint.getLatitudeE6()) / 1E6 + " AND "
-				+ LONGITUDE + " = " + (double) (geoPoint.getLongitudeE6())
-				/ 1E6 + " AND " + POPUP_TEXT + " = '" + sanitizeText(popupText)
-				+ "'", null);
-
+		String whereClause = COLUMN_ID + " = " + Id;
+		ContentValues values = new ContentValues();
+		values.put(LATITUDE, newLatLng.latitude);
+		values.put(LONGITUDE, newLatLng.longitude);
+		db.update(PLACE_TABLE_NAME, values, whereClause, null);
 		db.close();
-		return deleteResult;
-
 	}
 
-	public void deletePlace(LatLng position, String popupText) {
-		SQLiteDatabase db = getWritableDatabase();
-		String whereClause = LATITUDE + " = " + (int) (position.latitude * 1E6)
-				+ " AND " + LONGITUDE + " = "
-				+ (int) (position.longitude * 1E6) + " AND " + POPUP_TEXT
-				+ " = '" + sanitizeText(popupText) + "'";
-		Log.i(this.getClass().getName(),
-				"Deleting Popup Places at " + position.toString()
-						+ ", number removed: "
-						+ db.delete(PLACE_TABLE_NAME, whereClause, null));
-
-		db.close();
-
-	}
-*/
+	/*
+	 * public int deletePlace(GeoPoint geoPoint, String popupText) {
+	 * SQLiteDatabase db = getWritableDatabase();
+	 * 
+	 * Log.i(this.getClass().getName(), "Deleting Popup Place at " +
+	 * geoPoint.toString()); int deleteResult = db.delete(PLACE_TABLE_NAME,
+	 * LATITUDE + " = " + (double) (geoPoint.getLatitudeE6()) / 1E6 + " AND " +
+	 * LONGITUDE + " = " + (double) (geoPoint.getLongitudeE6()) / 1E6 + " AND "
+	 * + POPUP_TEXT + " = '" + sanitizeText(popupText) + "'", null);
+	 * 
+	 * db.close(); return deleteResult;
+	 * 
+	 * }
+	 * 
+	 * public void deletePlace(LatLng position, String popupText) {
+	 * SQLiteDatabase db = getWritableDatabase(); String whereClause = LATITUDE
+	 * + " = " + (int) (position.latitude * 1E6) + " AND " + LONGITUDE + " = " +
+	 * (int) (position.longitude * 1E6) + " AND " + POPUP_TEXT + " = '" +
+	 * sanitizeText(popupText) + "'"; Log.i(this.getClass().getName(),
+	 * "Deleting Popup Places at " + position.toString() + ", number removed: "
+	 * + db.delete(PLACE_TABLE_NAME, whereClause, null));
+	 * 
+	 * db.close();
+	 * 
+	 * }
+	 */
 	public boolean deletePlace(int columnId) {
 		SQLiteDatabase db = getWritableDatabase();
 		String whereClause = COLUMN_ID + " = " + columnId;
 		Log.i(this.getClass().getName(), "Deleting Popup Places number: "
 				+ columnId);
-		boolean success =(db.delete(PLACE_TABLE_NAME, whereClause, null) != 0);
+		boolean success = (db.delete(PLACE_TABLE_NAME, whereClause, null) != 0);
 		db.close();
 		return success;
 	}

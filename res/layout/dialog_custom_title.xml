@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/infoTitle"
+    style="@style/Dialog.Title"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical"
+    android:background="@drawable/ab_solid_ie_appz_theme"
+    android:maxLines="1"
+    android:minHeight="36dp"
+    android:padding="4dp" />

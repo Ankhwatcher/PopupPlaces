@@ -13,5 +13,6 @@ apikeys.xml
 bin/
 gen/
 libs/
+proguard/
 .dropbox
 .aidedropbox

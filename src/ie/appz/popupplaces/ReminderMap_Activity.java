@@ -44,6 +44,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -74,6 +75,43 @@ public class ReminderMap_Activity extends SherlockFragmentActivity implements
 	// Define an object that holds accuracy and frequency parameters
 	private LocationRequest mLocationRequest;
 	private LocationClient mLocationClient;
+
+	OnMarkerDragListener onMarkerDragListener = new OnMarkerDragListener() {
+		LatLng startingLatLng;
+
+		@Override
+		public void onMarkerDrag(Marker marker) {
+		}
+
+		@Override
+		public void onMarkerDragEnd(Marker marker) {
+			if (!marker.getPosition().equals(startingLatLng)) {
+				PlaceOpenHelper placeOpenHelper = new PlaceOpenHelper(
+						ReminderMap_Activity.this);
+				placeOpenHelper.movePlace(markerBiMap.inverse().get(marker),
+						marker.getPosition());
+				Log.i(this.getClass().getName(), "Popup Place #"
+						+ markerBiMap.inverse().get(marker) + " moved.");
+				/*
+				 * Tell PopupTrigger that this item has been removed from the
+				 * Database.
+				 */
+				Intent intent = new Intent(parentContext, PopupTrigger.class);
+				SharedPreferences settings = parentContext
+						.getSharedPreferences(PlaceOpenHelper.PREFS_NAME, 0);
+				if (!settings.getBoolean(PlaceOpenHelper.SERVICE_DISABLED,
+						false)) {
+					parentContext.startService(intent);
+				}
+			}
+		}
+
+		@Override
+		public void onMarkerDragStart(Marker marker) {
+			startingLatLng = marker.getPosition();
+		}
+
+	};
 
 	OnMapLongClickListener onMapLongClickListener = new OnMapLongClickListener() {
 		@Override
@@ -120,18 +158,7 @@ public class ReminderMap_Activity extends SherlockFragmentActivity implements
 								Intent intent = new Intent(
 										ReminderMap_Activity.this,
 										PopupTrigger.class);
-								/*
-								 * Bundle extrasBundle = new Bundle();
-								 * extrasBundle.putBoolean(
-								 * ReminderMap_Activity.ItemChanged, true);
-								 * extrasBundle
-								 * .putInt(PopupTrigger.NotificationLatitude,
-								 * (int) (point.latitude * 1E6));
-								 * extrasBundle.putInt
-								 * (PopupTrigger.NotificationLongitude, (int)
-								 * (point.longitude * 1E6));
-								 * intent.putExtras(extrasBundle);
-								 */
+
 								SharedPreferences settings = getSharedPreferences(
 										PlaceOpenHelper.PREFS_NAME, 0);
 								if (!settings
@@ -168,91 +195,7 @@ public class ReminderMap_Activity extends SherlockFragmentActivity implements
 
 		@Override
 		public void onInfoWindowClick(final Marker marker) {
-			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-					parentContext);
-			alertDialogBuilder.setInverseBackgroundForced(true);
-			TextView dialogCustomTitle = (TextView) getLayoutInflater()
-					.inflate(R.layout.dialog_custom_title, null);
 
-			dialogCustomTitle.setText(marker.getTitle());
-
-			TextView dialogCustomText = (TextView) getLayoutInflater().inflate(
-					R.layout.dialog_custom_text, null);
-			dialogCustomText.setText(marker.getSnippet());
-
-			alertDialogBuilder.setCustomTitle(dialogCustomTitle).setView(
-					dialogCustomText);
-
-			alertDialogBuilder.setPositiveButton(
-					getResources().getText(R.string.okay),
-					new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-					});
-
-			alertDialogBuilder.setNeutralButton(
-					getResources().getText(R.string.edit),
-					new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-							onEdit(marker);
-
-						}
-					});
-
-			// Click on the Delete Button
-			alertDialogBuilder.setNegativeButton(
-					getResources().getText(R.string.delete),
-					new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-
-							PlaceOpenHelper placeHelper = new PlaceOpenHelper(
-									parentContext);
-
-							placeHelper.deletePlace(markerBiMap.inverse().get(
-									marker));
-							placeHelper.close();
-
-							// Tell PopupTrigger that this item has been removed
-							// from
-							// the Database.
-							Intent intent = new Intent(parentContext,
-									PopupTrigger.class);
-							Bundle extrasBundle = new Bundle();
-							extrasBundle.putBoolean(
-									ReminderMap_Activity.ItemChanged, false);
-
-							extrasBundle
-									.putInt(PopupTrigger.NotificationLatitude,
-											(int) (marker.getPosition().latitude * 1E6));
-
-							extrasBundle
-									.putInt(PopupTrigger.NotificationLongitude,
-											(int) (marker.getPosition().longitude * 1E6));
-							intent.putExtras(extrasBundle);
-							SharedPreferences settings = parentContext
-									.getSharedPreferences(
-											PlaceOpenHelper.PREFS_NAME, 0);
-							if (!settings.getBoolean(
-									PlaceOpenHelper.SERVICE_DISABLED, false)) {
-								parentContext.startService(intent);
-							}
-
-							drawPlaces();
-							dialog.dismiss();
-
-						}
-					});
-			alertDialogBuilder.create().show();
-			return;
-		}
-
-		public boolean onEdit(final Marker marker) {
 			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
 					parentContext);
 			alertDialogBuilder.setInverseBackgroundForced(true);
@@ -309,11 +252,54 @@ public class ReminderMap_Activity extends SherlockFragmentActivity implements
 						}
 					});
 
+			// Click on the Delete Button
+			alertDialogBuilder.setNeutralButton(
+					getResources().getText(R.string.delete),
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+
+							PlaceOpenHelper placeHelper = new PlaceOpenHelper(
+									parentContext);
+
+							placeHelper.deletePlace(markerBiMap.inverse().get(
+									marker));
+							placeHelper.close();
+
+							// Tell PopupTrigger that this item has been removed
+							// from
+							// the Database.
+							Intent intent = new Intent(parentContext,
+									PopupTrigger.class);
+							Bundle extrasBundle = new Bundle();
+							extrasBundle.putBoolean(
+									ReminderMap_Activity.ItemChanged, false);
+
+							extrasBundle
+									.putInt(PopupTrigger.NotificationLatitude,
+											(int) (marker.getPosition().latitude * 1E6));
+
+							extrasBundle
+									.putInt(PopupTrigger.NotificationLongitude,
+											(int) (marker.getPosition().longitude * 1E6));
+							intent.putExtras(extrasBundle);
+							SharedPreferences settings = parentContext
+									.getSharedPreferences(
+											PlaceOpenHelper.PREFS_NAME, 0);
+							if (!settings.getBoolean(
+									PlaceOpenHelper.SERVICE_DISABLED, false)) {
+								parentContext.startService(intent);
+							}
+
+							drawPlaces();
+							dialog.dismiss();
+
+						}
+					});
 			alertDialogBuilder.create().show();
 			placeOpenHelper.close();
-			return true;
-		}
-
+			return;
+		};
 	};
 
 	// Define a callback method that recieves location updates
@@ -322,13 +308,10 @@ public class ReminderMap_Activity extends SherlockFragmentActivity implements
 		LatLng mLatLng = new LatLng(location.getLatitude(),
 				location.getLongitude());
 		if (mLatLng != null) {
-			googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mLatLng,
-					16));
+			googleMap.animateCamera(CameraUpdateFactory.newLatLng(mLatLng));
 		}
 		mLocationClient.removeLocationUpdates(this);
 	}
-
-	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -340,7 +323,7 @@ public class ReminderMap_Activity extends SherlockFragmentActivity implements
 		googleMap.clear();
 		googleMap.setOnMapLongClickListener(this.onMapLongClickListener);
 		googleMap.setOnInfoWindowClickListener(onInfoWindowClickListener);
-		
+		googleMap.setOnMarkerDragListener(onMarkerDragListener);
 		googleMap.setMyLocationEnabled(true);
 
 		PlaceOpenHelper placeOpenHelper = new PlaceOpenHelper(this);
@@ -399,6 +382,7 @@ public class ReminderMap_Activity extends SherlockFragmentActivity implements
 		SharedPreferences settings = getSharedPreferences(
 				PlaceOpenHelper.PREFS_NAME, 0);
 		if (settings.getBoolean(PlaceOpenHelper.FIRST_RUN, true)) {
+
 			searchResultsListView.setVisibility(View.VISIBLE);
 			ArrayList<String> stringArrayList = new ArrayList<String>();
 			stringArrayList.add(getString(R.string.user_intruction_1));
@@ -569,14 +553,6 @@ public class ReminderMap_Activity extends SherlockFragmentActivity implements
 				do {
 					LatLng latLng = new LatLng(placeCursor.getDouble(0),
 							placeCursor.getDouble(1));
-					/*
-					 * markerList .put(placeCursor.getInt(3),
-					 * googleMap.addMarker(new MarkerOptions()
-					 * .icon(BitmapDescriptorFactory
-					 * .fromResource(R.drawable.ic_launcher))
-					 * .title("Popup Note:") .snippet(placeCursor.getString(2))
-					 * .draggable(true).position(latLng) .anchor(0.5f, 0.5f)));
-					 */
 					markerBiMap
 							.put(placeCursor.getInt(3),
 									googleMap.addMarker(new MarkerOptions()
@@ -662,10 +638,6 @@ public class ReminderMap_Activity extends SherlockFragmentActivity implements
 	@Override
 	protected void onPause() {
 		super.onPause();
-		// nowRunning = false;
-		/*
-		 * synchronized (mUpdate) { mUpdate.notify(); }
-		 */
 	}
 
 	@Override
@@ -737,6 +709,7 @@ public class ReminderMap_Activity extends SherlockFragmentActivity implements
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private boolean servicesConnected() {
 		// Check that Google Play services is available
 		int resultCode = GooglePlayServicesUtil
@@ -778,14 +751,14 @@ public class ReminderMap_Activity extends SherlockFragmentActivity implements
 	@Override
 	public void onConnected(Bundle connectionHint) {
 		Log.d(this.getClass().getName(),
-				"Connected to Google Maps successfully");
-
+				"Connected to Google Maps successfully, requesting Location.");
+		mLocationClient.requestLocationUpdates(mLocationRequest, this);
 	}
 
 	@Override
 	public void onDisconnected() {
 		Log.d(this.getClass().getName(), "Disconnected from Google Maps.");
-
+		mLocationClient.removeLocationUpdates(this);
 	}
 
 	@Override

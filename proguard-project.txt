@@ -18,3 +18,24 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+# Needed by google-api-client to keep generic types and @Key annotations accessed via reflection
+-keep class android.support.v4.app.** { *; } 
+-keep interface android.support.v4.app.** { *; } 
+-keep class com.actionbarsherlock.** { *; } 
+-keep interface com.actionbarsherlock.** { *; } 
+-keepattributes *Annotation*
+
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}
+
+-keepattributes Signature, Annotation
+
+-keep class com.google.gson.** {*;}
+
+#-keep class sun.misc.Unsafe { *; }
+-dontwarn sun.misc.Unsafe
+
+-libraryjars libs/guava-14.0.1.jar
+-libraryjars libs/jsr305-2.0.1.jar
+-libraryjars libs/javax.inject-1.jar
