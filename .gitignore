@@ -14,6 +14,13 @@ bin/
 gen/
 libs/
 proguard/
+proguard_logs/
 .dropbox
 .aidedropbox
-.idea
+.idea/
+.settings
+PopupPlaces.iml
+module_popupplaces.xml
+out/
+popupplaces.properties
+popupplaces.xml
