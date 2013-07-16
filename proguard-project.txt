@@ -36,6 +36,6 @@
 #-keep class sun.misc.Unsafe { *; }
 -dontwarn sun.misc.Unsafe
 
--libraryjars libs/guava-14.0.1.jar
--libraryjars libs/jsr305-2.0.1.jar
--libraryjars libs/javax.inject-1.jar
+-libraryjars /home/rory/Dropbox/workspace/Libraries/guava-14.0.1.jar
+-libraryjars /home/rory/Dropbox/workspace/Libraries/jsr305-2.0.1.jar
+-libraryjars /home/rory/Dropbox/workspace/Libraries/javax.inject-1.jar

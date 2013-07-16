@@ -7,39 +7,38 @@ import android.location.Location;
  * */
 
 public class FireableLocation extends Location {
-	private boolean mHasFired = false;
-	private int columnId;
+    private boolean mHasFired = false;
+    private int columnId;
 
-	public FireableLocation(String s) {
-		super(s);
+    public FireableLocation(String s) {
+        super(s);
+    }
 
-	}
+    /*
+     * Returns the fired status of this fix.
+     */
+    public boolean isFired() {
+        return mHasFired;
+    }
 
-	/*
-	 * Returns the fired status of this fix.
-	 */
-	public boolean isFired() {
-		return mHasFired;
-	}
+    /*
+     * Sets the fired status of this fix.
+     */
+    public void setFired(boolean hasFired) {
+        mHasFired = hasFired;
+    }
 
-	/*
-	 * Sets the fired status of this fix.
-	 */
-	public void setFired(boolean hasFired) {
-		mHasFired = hasFired;
-	}
+    /*
+     * Returns the ColumnId associated with this location.
+     */
+    public int getColumnId() {
+        return columnId;
+    }
 
-	/*
-	 * Returns the ColumnId associated with this location.
-	 */
-	public int getColumnId() {
-		return columnId;
-	}
-
-	/*
-	 * Sets the ColumnId associated with this location.
-	 */
-	public void setColumnId(int columnId) {
-		this.columnId = columnId;
-	}
+    /*
+     * Sets the ColumnId associated with this location.
+     */
+    public void setColumnId(int columnId) {
+        this.columnId = columnId;
+    }
 }

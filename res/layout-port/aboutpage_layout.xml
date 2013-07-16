@@ -1,37 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical">
 
     <ListView
-        android:id="@+id/aboutListView"
-        android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="7" />
+            android:id="@+id/aboutListView"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_weight="7"/>
 
     <TextView
-        android:id="@+id/aboutReport"
-        android:layout_width="fill_parent"
-        android:layout_height="0dip"
-        android:layout_margin="8dip"
-        android:layout_weight="1"
-        android:background="@color/translucent_red"
-        android:clickable="true"
-        android:gravity="center"
-        android:text="@string/about_report"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:id="@+id/aboutReport"
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
+            android:layout_margin="8dip"
+            android:layout_weight="1"
+            android:background="@color/translucent_red"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="@string/about_report"
+            android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <TextView
-        android:id="@+id/aboutRequest"
-        android:layout_width="fill_parent"
-        android:layout_height="0dip"
-        android:layout_margin="8dip"
-        android:layout_weight="1"
-        android:background="@color/translucent_cyan"
-        android:clickable="true"
-        android:gravity="center"
-        android:text="@string/about_request"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:id="@+id/aboutRequest"
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
+            android:layout_margin="8dip"
+            android:layout_weight="1"
+            android:background="@color/translucent_cyan"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="@string/about_request"
+            android:textAppearance="?android:attr/textAppearanceLarge"/>
 
 </LinearLayout>

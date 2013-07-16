@@ -106,7 +106,8 @@ http://jgilfelt.github.io/android-actionbarstylegenerator/#name=ie_appz_theme&co
     </style>
 
     <style name="Dialog.Title" parent="@android:style/TextAppearance.Large">
-        
+
+        <item name="background">@drawable/ab_solid_ie_appz_theme</item>
         <item name="android:textColor">@color/solid_white</item>
     </style>
 

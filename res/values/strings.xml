@@ -34,5 +34,13 @@
     <string name="menu_title_center_map_on_me">Center Map On Me</string>
     <string name="menu_title_read_out_popups">Read Out Popups</string>
     <string name="user_intruction_1">Long-press anywhere on the map to add a Popup Place!</string>
+    <string name="settingspage_highvalue">150m</string>
+    <string name="settingspage_explaintext">Having a larger Pop Radius reduces the battery power
+        used by Popup Places.
+    </string>
+    <string name="settingspage_lowvalue">20m</string>
+    <string name="settingspage_popradius">Pop Radius:</string>
+    <string name="settings_title">Settings</string>
+    <string name="menu_settings">Settings</string>
 
 </resources>

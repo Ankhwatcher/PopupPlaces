@@ -20,17 +20,22 @@
 <resources>
 
     <style name="Theme.Ie_appz_theme" parent="@style/Theme.Sherlock.Light.DarkActionBar">
-        <item name="android:actionBarItemBackground">@drawable/selectable_background_ie_appz_theme</item>
+        <item name="android:actionBarItemBackground">@drawable/selectable_background_ie_appz_theme
+        </item>
         <item name="android:popupMenuStyle">@style/PopupMenu.Ie_appz_theme</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView.Ie_appz_theme</item>
         <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Ie_appz_theme</item>
         <item name="android:actionDropDownStyle">@style/DropDownNav.Ie_appz_theme</item>
         <item name="android:actionBarStyle">@style/ActionBar.Solid.Ie_appz_theme</item>
         <item name="android:actionModeBackground">@drawable/cab_background_top_ie_appz_theme</item>
-        <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_ie_appz_theme</item>
-        <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Ie_appz_theme</item>
-        
-                <!-- Light.DarkActionBar specific -->
+        <item name="android:actionModeSplitBackground">
+            @drawable/cab_background_bottom_ie_appz_theme
+        </item>
+        <item name="android:actionModeCloseButtonStyle">
+            @style/ActionButton.CloseMode.Ie_appz_theme
+        </item>
+
+        <!-- Light.DarkActionBar specific -->
         <item name="android:actionBarWidgetTheme">@style/Theme.Ie_appz_theme.Widget</item>
 
     </style>
@@ -46,7 +51,7 @@
         <item name="android:background">@drawable/ab_transparent_ie_appz_theme</item>
         <item name="android:progressBarStyle">@style/ProgressBar.Ie_appz_theme</item>
     </style>
-    
+
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
     <style name="Theme.Ie_appz_theme.Widget" parent="@style/Theme.Sherlock">
         <item name="android:popupMenuStyle">@style/PopupMenu.Ie_appz_theme</item>
